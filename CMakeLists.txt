@@ -43,7 +43,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 	
 		
 	## 3rd Party Includes
-		set(THIRD_PARTY_INCLUDES 	)		
+		set(THIRD_PARTY_INCLUDES 	ThirdParty)		
 		
 		set(THIRD_PARTY_LIBS 		)
 		
