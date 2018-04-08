@@ -1,7 +1,1 @@
-sdist: trusty
-sudo: false
 language: cpp
-
-script:
-	- cmake .
-	- cmake --build .
