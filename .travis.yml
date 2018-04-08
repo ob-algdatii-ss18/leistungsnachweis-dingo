@@ -2,6 +2,7 @@ language: cpp
 
 script:
  - mkdir build
+ - cp CMakeLists.txt build/CMakeLists.txt
  - cd build
  - cmake .
  - make
