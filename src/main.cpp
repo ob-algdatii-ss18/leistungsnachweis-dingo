@@ -166,7 +166,7 @@ int main(int, char*[])
         int w, h, pitch;
         void* pixels;
         SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-
+        
         SDL_LockTexture(texture, nullptr, &pixels, &pitch);
         SDL_memcpy(pixels, image.data(), image.size() * sizeof(u8));
         SDL_UnlockTexture(texture);
