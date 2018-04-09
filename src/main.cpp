@@ -14,11 +14,6 @@ static inline float perlinFade(float t)
     return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
 }
 
-static inline int getPerm(const std::array<int, 256>& p, int value)
-{
-    return p[value % 256];
-}
-
 static inline float grad(int hash, float x, float y, float z)
 {
     switch (hash & 0xF)
@@ -47,43 +42,65 @@ static inline float lerp(float a, float b, float x) {
     return a + x * (b - a);
 }
 
+static int perlin_fastfloor(float a)
+{
+    int ai = (int)a;
+    return (a < ai) ? ai - 1 : ai;
+}
+
 // http://flafla2.github.io/2014/08/09/perlinnoise.html
-static float perlin3D(const std::array<int, 256>& p, float x, float y, float z)
+static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
 {
     x = fmod(x, period);
     y = fmod(y, period);
     z = fmod(z, period);
 
     // Corrdinates in 
-    int xi = static_cast<int>(x) & 255;
-    int yi = static_cast<int>(y) & 255;
-    int zi = static_cast<int>(z) & 255;
-    float xf = x - static_cast<int>(x);
-    float yf = y - static_cast<int>(y);
-    float zf = z - static_cast<int>(z);
+    int px = perlin_fastfloor(x);
+    int py = perlin_fastfloor(y);
+    int pz = perlin_fastfloor(z);
 
-    float u = perlinFade(xf);
-    float v = perlinFade(yf);
-    float w = perlinFade(zf);
+    int x0 = px & 255;
+    int x1 = (px + 1) & 255;
+    int y0 = py & 255;
+    int y1 = (py + 1) & 255;
+    int z0 = pz & 255;
+    int z1 = (pz + 1) & 255;
 
-    int aaa = getPerm(p, getPerm(p, getPerm(p, xi) + yi) + zi);
-    int aba = getPerm(p, getPerm(p, getPerm(p, xi) + yi + 1) + zi);
-    int aab = getPerm(p, getPerm(p, getPerm(p, xi) + yi) + zi + 1);
-    int abb = getPerm(p, getPerm(p, getPerm(p, xi) + yi + 1) + zi + 1);
-    int baa = getPerm(p, getPerm(p, getPerm(p, xi + 1) + yi) + zi);
-    int bba = getPerm(p, getPerm(p, getPerm(p, xi + 1) + yi + 1) + zi);
-    int bab = getPerm(p, getPerm(p, getPerm(p, xi + 1) + yi) + zi + 1);
-    int bbb = getPerm(p, getPerm(p, getPerm(p, xi + 1) + yi + 1) + zi + 1);
+    x -= px;
+    y -= py;
+    z -= pz;
 
-    float x1 = lerp(grad(aaa, xf, yf, zf), grad(baa, xf - 1, yf, zf), u);
-    float x2 = lerp(grad(aba, xf, yf - 1, zf), grad(bba, xf - 1, yf - 1, zf), u);
-    float y1 = lerp(x1, x2, v);
+    float u = perlinFade(x);
+    float v = perlinFade(y);
+    float w = perlinFade(z);
 
-    x1 = lerp(grad(aab, xf, yf, zf - 1), grad(bab, xf - 1, yf, zf - 1), u);
-    x2 = lerp(grad(abb, xf, yf - 1, zf - 1), grad(bbb, xf - 1, yf - 1, zf - 1), u);
-    float y2 = lerp(x1, x2, v);
+    int r0 = p[x0];
+    int r1 = p[x1];
 
-    return (lerp(y1, y2, w) + 1) / 2;
+    int r00 = p[r0 + y0];
+    int r01 = p[r0 + y1];
+    int r10 = p[r1 + y0];
+    int r11 = p[r1 + y1];
+
+    int aaa = p[r00 + z0];
+    int aba = p[r01 + z0];
+    int aab = p[r00 + z1];
+    int abb = p[r01 + z1];
+    int baa = p[r10 + z0];
+    int bba = p[r11 + z0];
+    int bab = p[r10 + z1];
+    int bbb = p[r11 + z1];
+
+    float gx1 = lerp(grad(aaa, x, y, z), grad(baa, x - 1, y, z), u);
+    float gx2 = lerp(grad(aba, x, y - 1, z), grad(bba, x - 1, y - 1, z), u);
+    float gy1 = lerp(gx1, gx2, v);
+
+    gx1 = lerp(grad(aab, x, y, z - 1), grad(bab, x - 1, y, z - 1), u);
+    gx2 = lerp(grad(abb, x, y - 1, z - 1), grad(bbb, x - 1, y - 1, z - 1), u);
+    float gy2 = lerp(gx1, gx2, v);
+
+    return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
 int main(int, char*[])
@@ -119,12 +136,14 @@ int main(int, char*[])
     u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator(seed);
 
-    std::array<int, 256> permutation{};
+    std::array<int, 512> permutation{};
     // Fill with 0 to 255
-    std::iota(permutation.begin(), permutation.end(), 1);
+    auto permEnd = permutation.begin() + 256;
+    std::iota(permutation.begin(), permEnd, 1);
     // Shuffle
-    std::shuffle(permutation.begin(), permutation.end(), generator);
-
+    std::shuffle(permutation.begin(), permEnd, generator);
+    // Copy back to avoid overflows (we can query from [0,512[ to avoid doing modulos everywhere
+    std::copy(permutation.begin(), permEnd, permEnd);
     // Running var for animation
     float z = 0.f;
     bool  running = true;
@@ -154,7 +173,7 @@ int main(int, char*[])
             for (int x = 0; x < width; ++x)
             {
                 float perlin = perlin3D(permutation, x*0.01f, y*0.01f, z);
-                u8 colorValue = static_cast<u8>(floor(perlin * 256));
+                u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
                 for (int c = 0; c < components; ++c)
                 {
                     image[idx++] = colorValue;
@@ -166,7 +185,7 @@ int main(int, char*[])
         int w, h, pitch;
         void* pixels;
         SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-        
+
         SDL_LockTexture(texture, nullptr, &pixels, &pitch);
         SDL_memcpy(pixels, image.data(), image.size() * sizeof(u8));
         SDL_UnlockTexture(texture);
