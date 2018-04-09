@@ -7,8 +7,6 @@
 #include <SDL.h>
 #include <chrono>
 
-const float period = 256.0f;
-
 static inline float perlinFade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
@@ -51,11 +49,6 @@ static int perlin_fastfloor(float a)
 // http://flafla2.github.io/2014/08/09/perlinnoise.html
 static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
 {
-    x = fmod(x, period);
-    y = fmod(y, period);
-    z = fmod(z, period);
-
-    // Corrdinates in 
     int px = perlin_fastfloor(x);
     int py = perlin_fastfloor(y);
     int pz = perlin_fastfloor(z);
@@ -75,6 +68,7 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     float v = perlinFade(y);
     float w = perlinFade(z);
 
+    // Randomization via 3x TableLookup
     int r0 = p[x0];
     int r1 = p[x1];
 
@@ -92,6 +86,7 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     int bab = p[r10 + z1];
     int bbb = p[r11 + z1];
 
+    // Calculate Gradient and lerp in x and y
     float gx1 = lerp(grad(aaa, x, y, z), grad(baa, x - 1, y, z), u);
     float gx2 = lerp(grad(aba, x, y - 1, z), grad(bba, x - 1, y - 1, z), u);
     float gy1 = lerp(gx1, gx2, v);
@@ -173,6 +168,8 @@ int main(int, char*[])
             for (int x = 0; x < width; ++x)
             {
                 float perlin = perlin3D(permutation, x*0.01f, y*0.01f, z);
+                
+                // Get 0.0 - 1.0 value to 0 - 255
                 u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
                 for (int c = 0; c < components; ++c)
                 {
@@ -194,7 +191,9 @@ int main(int, char*[])
         SDL_RenderCopy(renderer, texture, 0, 0);
         SDL_RenderPresent(renderer);
         z += 0.01f;
-        z = fmod(z, period);
+
+        // Wrap the value to not run into floating point issues
+        z = fmod(z, 256.f);
     }
 
     return 0;
