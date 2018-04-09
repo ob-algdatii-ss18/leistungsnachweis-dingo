@@ -1,7 +1,9 @@
 language: cpp
 
-before_install:
- - sudo apt-get install libsdl2-dev g++
+install:
+ - curl -O https://www.libsdl.org/release/SDL2-2.0.8.tar.gz
+ - tar -xzvf SDL2-2.0.8.tar.gz
+ - (cd SDL2-2.0.8 && ./configure && make && sudo make install)
  
 script:
  - mkdir build
