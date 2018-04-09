@@ -41,11 +41,18 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 #Third Party Builds
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	
+	## SDL	
+		SET (SDL_LIB_PATH ${CMAKE_SOURCE_DIR}/ThirdParty/SDL/lib/x64)
+
+
+		set(SDL_LIBS	${SDL_LIB_PATH}/SDL2main.lib
+						${SDL_LIB_PATH}/SDL2.lib
+						)
 		
 	## 3rd Party Includes
-		set(THIRD_PARTY_INCLUDES 	ThirdParty)		
+		set(THIRD_PARTY_INCLUDES 	ThirdParty ThirdParty/SDL/include)		
 		
-		set(THIRD_PARTY_LIBS 		)
+		set(THIRD_PARTY_LIBS 		${SDL_LIBS})
 		
 		set(THIRD_PARTY_SRC_FILES   )
 
@@ -70,4 +77,10 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 # Create Source Groups based on path
 assign_source_group(${ALL_SOURCE_FILES})
 
-# target_link_libraries(${PROJECT_NAME} ${THIRD_PARTY_LIBS})
+target_link_libraries(${PROJECT_NAME} ${THIRD_PARTY_LIBS})
+
+# Copy SDL Dll
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/ThirdParty/SDL/lib/x64"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
