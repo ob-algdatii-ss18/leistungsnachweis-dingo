@@ -1,5 +1,8 @@
 language: cpp
 
+before_install:
+ - sudo apt install cmake libsdl2-dev g++
+ 
 script:
  - mkdir build
  - cd build

@@ -168,7 +168,7 @@ int main(int, char*[])
         SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 
         SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-        memcpy(pixels, image.data(), image.size() * sizeof(u8));
+        std::memcpy(pixels, image.data(), image.size() * sizeof(u8));
         SDL_UnlockTexture(texture);
 
         // Render to screen
