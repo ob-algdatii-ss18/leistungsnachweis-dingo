@@ -1,4 +1,5 @@
 # leistungsnachweis-dingo
+[![Build Status](https://travis-ci.org/ob-algdatii-ss18/leistungsnachweis-dingo.svg?branch=master)](https://travis-ci.org/ob-algdatii-ss18/leistungsnachweis-dingo)
 
 ## Links
 ### Perlin Noise

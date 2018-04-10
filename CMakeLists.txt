@@ -41,13 +41,19 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 #Third Party Builds
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	
+	## SDL	
+		if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+			set(SDL2_DIR ThirdParty/SDL2)
+		endif()
+		find_package(SDL2 REQUIRED)
 		
 	## 3rd Party Includes
-		set(THIRD_PARTY_INCLUDES 	ThirdParty)		
+		set(THIRD_PARTY_INCLUDES 	ThirdParty ${SDL2_INCLUDE_DIRS})		
 		
-		set(THIRD_PARTY_LIBS 		)
+		set(THIRD_PARTY_LIBS 		${SDL2_LIBRARIES})
 		
 		set(THIRD_PARTY_SRC_FILES   )
+		set(THIRD_PARTY_BINS ${SDL2_BINS})
 
 #Includes
 include_directories(src
@@ -70,4 +76,16 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES})
 # Create Source Groups based on path
 assign_source_group(${ALL_SOURCE_FILES})
 
-# target_link_libraries(${PROJECT_NAME} ${THIRD_PARTY_LIBS})
+target_link_libraries(${PROJECT_NAME} ${THIRD_PARTY_LIBS})
+
+# Copy SDL Dll
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+foreach(loop_var ${THIRD_PARTY_BINS})
+  get_filename_component(filename ${loop_var} NAME)
+  add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${loop_var}
+                ${CMAKE_CURRENT_BINARY_DIR}/${filename})
+endforeach(loop_var)	
+endif()

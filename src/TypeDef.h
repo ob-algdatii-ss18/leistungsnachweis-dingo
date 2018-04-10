@@ -1,12 +1,8 @@
 #pragma once
+#include <SDL.h>
 #include <cstdint>
 
-#define Assert(Expression) \
-    if (!(Expression))     \
-    {                      \
-        __debugbreak();    \
-        *(int *)0 = 0;     \
-    }
+#define Assert(Expression) SDL_assert(Expression)
 
 typedef int8_t s8;
 typedef int16_t s16;
