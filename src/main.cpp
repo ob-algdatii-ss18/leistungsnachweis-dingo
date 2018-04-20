@@ -100,12 +100,12 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
 
 double OctavePerlin(const std::array <int, 512> &permutation, float x, float y, float z, int octaves) {
 	
-	double total = 0;
-	double frequency = 1;
-	double amplitude = 1;
+	float total = 0.f;
+	float frequency = 1.f;
+	float amplitude = 1.f;
 
 	// Used for normalizing result to 0.0 - 1.0
-	double maxValue = 0; 
+	float maxValue = 0.f; 
 
 	for (int i = 0; i < octaves; i++) {
 
@@ -114,7 +114,7 @@ double OctavePerlin(const std::array <int, 512> &permutation, float x, float y, 
 		maxValue += amplitude;
 
 		amplitude *= 0.5f;
-		frequency *= 2;
+		frequency *= 2.f;
 	}
 
 	return total / maxValue;
