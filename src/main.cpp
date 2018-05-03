@@ -7,6 +7,8 @@
 #include <SDL.h>
 #include <chrono>
 
+#define RENDER_OPEN_GL
+
 #define GLEW_STATIC
 #include <GL\glew.h>
 
@@ -108,10 +110,6 @@ int main(int, char*[])
     const int height = 480;
     const int components = 4;  // RGBA
 
-    //The window we'll be rendering to
-    SDL_Window* window = NULL;
-	SDL_Window* glWindow = NULL;
-	SDL_GLContext glContext; // not sure if we actually need this handle...
 
     //Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -120,22 +118,11 @@ int main(int, char*[])
         return 1;
     }
 
-	// SDL2 window
-    window = SDL_CreateWindow(
-		"SDL Window", 
-		SDL_WINDOWPOS_UNDEFINED, 
-		SDL_WINDOWPOS_UNDEFINED, 
-		width, height, 
-		SDL_WINDOW_SHOWN);
-    if (window == NULL)
-    {
-        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return 1;
-    }
 
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 640, 480);
+#ifdef RENDER_OPEN_GL
 
+	SDL_Window* glWindow = NULL;
+	SDL_GLContext glContext; // not sure if we actually need this handle...
 	// gl context attributes
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
@@ -167,6 +154,28 @@ int main(int, char*[])
 	{
 		printf("Failed to get extended Render Context");
 	}
+
+#else
+
+    //The window we'll be rendering to
+    SDL_Window* window = NULL;
+	// SDL2 window
+    window = SDL_CreateWindow(
+		"SDL Window", 
+		SDL_WINDOWPOS_UNDEFINED, 
+		SDL_WINDOWPOS_UNDEFINED, 
+		width, height, 
+		SDL_WINDOW_SHOWN);
+    if (window == NULL)
+    {
+        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 640, 480);
+
+#endif
 
     // Create data buffer
     std::vector<u8> image;
@@ -200,6 +209,7 @@ int main(int, char*[])
                 running = false;
         }
 
+
         // Calculate Delta-Time to see runtime
         u32 current = SDL_GetTicks();
         u32 deltams = current - start;
@@ -224,6 +234,17 @@ int main(int, char*[])
             }
         }
 
+
+#ifdef RENDER_OPEN_GL
+
+		/* Clear our buffer with a red background */
+		glClearColor(1.0, 0.0, 0.0, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		/* Swap our back buffer to the front */
+		SDL_GL_SwapWindow(glWindow);
+
+#else 
+
         // Write to texture
         int w, h, pitch;
         void* pixels;
@@ -233,11 +254,13 @@ int main(int, char*[])
         SDL_memcpy(pixels, image.data(), image.size() * sizeof(u8));
         SDL_UnlockTexture(texture);
 
-        // Render to screen
+		// Render to screen
         SDL_RenderCopy(renderer, texture, 0, 0);
         SDL_RenderPresent(renderer);
-        z += 0.01f;
 
+#endif
+
+        z += 0.01f;
         // Wrap the value to not run into floating point issues
         z = fmod(z, 256.f);
     }
