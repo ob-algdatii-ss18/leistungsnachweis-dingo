@@ -198,19 +198,7 @@ int main(int, char*[])
 	// create shaders
 	// load shader text from files
 	char * vertCode = load_text("../src/vertexshader.vert");
-	//const char* vertCode =
-	//	"#version 410\n"
-	//	"in vec3 vp;"
-	//	"void main () {"
-	//	" gl_Position = vec4 (vp, 1.0);"
-	//	"}";
 	char * fragCode = load_text("../src/fragmentshader.frag");
-	//const char* fragCode =
-	//	"#version 410\n"
-	//	"out vec4 frag_colour;"
-	//	"void main () {"
-	//	" frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
-	//	"}";
 
 	// compile shader program
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -231,6 +219,7 @@ int main(int, char*[])
 	// tell the shader what attribute belongs to which in variable name (OGL3.2 compatibility)
 	// has to be done BEFORE linking!
 	glBindAttribLocation(shaderProgram, 0, "vertex_pos");
+	glBindAttribLocation(shaderProgram, 1, "colors");
 	//glBindAttribLocation(shaderProgram, 1, "texture_pos");
 
 	glLinkProgram(shaderProgram);
@@ -238,6 +227,47 @@ int main(int, char*[])
 
 	glDetachShader(shaderProgram, vertexShader);
 	glDetachShader(shaderProgram, fragmentShader);
+
+	// test data
+	GLfloat vertices[] = {
+		-0.5f, 0.5f, 0.0f,
+		0.5f, 0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		-0.5f, 0.5f, 0.0f
+	};
+
+	GLfloat colors[] = {
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f
+	};
+
+	GLuint vao = 0;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	GLuint vbo = 0;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// first param is index
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	// enable, affects only the previously bound VBOs!
+	glEnableVertexAttribArray(0);
+
+	GLuint color_vbo = 0;
+	glGenBuffers(1, &color_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors , GL_STATIC_DRAW);
+	// first param is index
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	// enable, affects only the previously bound VBOs!
+	glEnableVertexAttribArray(1);
 
 #else
 
@@ -320,11 +350,15 @@ int main(int, char*[])
 
 
 #ifdef RENDER_OPEN_GL
-
+		glUseProgram(shaderProgram);
 		/* Clear our buffer with a red background */
-		glClearColor(1.0, 0.0, 0.0, 1.0);
+		glClearColor(0.2, 0.2, 0.2, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		/* Swap our back buffer to the front */
+
+		glBindVertexArray(vao);
+		//glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 		SDL_GL_SwapWindow(glWindow);
 
 #else 

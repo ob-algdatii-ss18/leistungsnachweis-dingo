@@ -1,10 +1,9 @@
 #version 150
 
-in vec2 texturePosForFrag;
-uniform sampler2D tex;
+in vec3 to_frag;
 out vec4 frag_colour;
 
 void main () 
 {
-  frag_colour = texture2D(tex, texturePosForFrag);
+  frag_colour = vec4(to_frag, 1.0);
 }
