@@ -108,6 +108,7 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
 char* load_text(char const * filename)
 {
 	FILE* f = fopen(filename, "rb");
+	Assert(f);
 	fseek(f, 0L, SEEK_END);
 	long size = ftell(f);
 	rewind(f);
@@ -149,6 +150,23 @@ int main(int, char*[])
     const int height = 480;
     const int components = 4;  // RGBA
 
+    // Create data buffer
+    std::vector<u8> image;
+    image.resize(width * height * components);
+
+    // Perlin Random Initialize
+    // C++11 Randoms http://www.cplusplus.com/reference/random/
+    u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator(seed);
+
+    std::array<int, 512> permutation{};
+    // Fill with 0 to 255
+    auto permEnd = permutation.begin() + 256;
+    std::iota(permutation.begin(), permEnd, 1);
+    // Shuffle
+    std::shuffle(permutation.begin(), permEnd, generator);
+    // Copy back to avoid overflows (we can query from [0,512[ to avoid doing modulos everywhere
+    std::copy(permutation.begin(), permEnd, permEnd);
 
     //Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -269,6 +287,27 @@ int main(int, char*[])
 	// enable, affects only the previously bound VBOs!
 	glEnableVertexAttribArray(1);
 
+	// texture
+	GLuint tex = 0;
+	glGenTextures(1, &tex);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGBA,
+		width,
+		height,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		&image[0]
+	);
+
+	// link to tex uniform in vertex shader
+	int tex_loc = glGetUniformLocation(shaderProgram, "tex");
+	glUniform1i(tex_loc, 0);
+	glActiveTexture(GL_TEXTURE0);
+
 #else
 
     //The window we'll be rendering to
@@ -291,24 +330,8 @@ int main(int, char*[])
 
 #endif
 
-    // Create data buffer
-    std::vector<u8> image;
-    image.resize(width * height * components);
-
-    // Perlin Random Initialize
-    // C++11 Randoms http://www.cplusplus.com/reference/random/
-    u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
-
-    std::array<int, 512> permutation{};
-    // Fill with 0 to 255
-    auto permEnd = permutation.begin() + 256;
-    std::iota(permutation.begin(), permEnd, 1);
-    // Shuffle
-    std::shuffle(permutation.begin(), permEnd, generator);
-    // Copy back to avoid overflows (we can query from [0,512[ to avoid doing modulos everywhere
-    std::copy(permutation.begin(), permEnd, permEnd);
-    // Running var for animation
+    
+	// Running var for animation
     float z = 0.f;
     bool  running = true;
 
@@ -351,6 +374,7 @@ int main(int, char*[])
 
 #ifdef RENDER_OPEN_GL
 		glUseProgram(shaderProgram);
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 		/* Clear our buffer with a red background */
 		glClearColor(0.2, 0.2, 0.2, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -378,7 +402,7 @@ int main(int, char*[])
 
 #endif
 
-        z += 0.01f;
+        z += 0.1f;
         // Wrap the value to not run into floating point issues
         z = fmod(z, 256.f);
     }
