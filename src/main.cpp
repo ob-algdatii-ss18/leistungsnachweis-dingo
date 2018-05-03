@@ -7,6 +7,9 @@
 #include <SDL.h>
 #include <chrono>
 
+#define GLEW_STATIC
+#include <GL\glew.h>
+
 static inline float perlinFade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
@@ -100,12 +103,15 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
 
 int main(int, char*[])
 {
+
     const int width = 640;
     const int height = 480;
     const int components = 4;  // RGBA
 
     //The window we'll be rendering to
     SDL_Window* window = NULL;
+	SDL_Window* glWindow = NULL;
+	SDL_GLContext glContext; // not sure if we actually need this handle...
 
     //Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -113,14 +119,54 @@ int main(int, char*[])
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-    window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+
+	// SDL2 window
+    window = SDL_CreateWindow(
+		"SDL Window", 
+		SDL_WINDOWPOS_UNDEFINED, 
+		SDL_WINDOWPOS_UNDEFINED, 
+		width, height, 
+		SDL_WINDOW_SHOWN);
     if (window == NULL)
     {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
+
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
     SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 640, 480);
+
+	// gl context attributes
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	// SDL2 window for OpenGL context creation
+	glWindow = SDL_CreateWindow(
+		"OpenGL Window",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		width, height,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+	if (glWindow == NULL)
+	{
+		printf("OpenGL Window could not be created! SDL_Error: %s\n", SDL_GetError());
+		return 1;
+	}
+	if ((glContext = SDL_GL_CreateContext(glWindow)) == NULL)
+	{
+		printf("Failed to bind Device Context to GL Render Context! SDL_Error: %s\n", 
+			SDL_GetError());
+		return 1;
+	}
+
+	// load GL extension pointers using GLEW
+	glewExperimental = GL_TRUE;
+	if (glewInit() != GLEW_OK)
+	{
+		printf("Failed to get extended Render Context");
+	}
 
     // Create data buffer
     std::vector<u8> image;
