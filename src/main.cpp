@@ -7,10 +7,12 @@
 #include <SDL.h>
 #include <chrono>
 
+#include <stdio.h>
+
 #define RENDER_OPEN_GL
 
 #define GLEW_STATIC
-#include <GL\glew.h>
+#include <GL/glew.h>
 
 static inline float perlinFade(float t)
 {
@@ -103,6 +105,43 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
+char* load_text(char const * filename)
+{
+	FILE* f = fopen(filename, "rb");
+	fseek(f, 0L, SEEK_END);
+	long size = ftell(f);
+	rewind(f);
+	char* buffer = (char *)malloc(size + 1);
+	fread(buffer, sizeof *buffer, size, f);
+	buffer[size] = '\0';
+	fclose(f);
+
+	return buffer;
+}
+
+void check_shader_error(GLuint shader)
+{
+	GLint success = 0;
+	GLint logSize = 0;
+	GLchar buffer[255];
+
+	if (glIsProgram(shader))
+	{
+		glGetProgramiv(shader, GL_LINK_STATUS, &success);
+	}
+	else
+	{
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	}
+
+	if (success == GL_FALSE)
+	{
+		glGetProgramiv(shader, GL_INFO_LOG_LENGTH, &logSize);
+		glGetProgramInfoLog(shader, 255, &logSize, &buffer[0]);
+		printf("Failed to Link Shader Program: %s\n", buffer);
+	}
+}
+
 int main(int, char*[])
 {
 
@@ -153,7 +192,52 @@ int main(int, char*[])
 	if (glewInit() != GLEW_OK)
 	{
 		printf("Failed to get extended Render Context");
+		return 1;
 	}
+
+	// create shaders
+	// load shader text from files
+	char * vertCode = load_text("../src/vertexshader.vert");
+	//const char* vertCode =
+	//	"#version 410\n"
+	//	"in vec3 vp;"
+	//	"void main () {"
+	//	" gl_Position = vec4 (vp, 1.0);"
+	//	"}";
+	char * fragCode = load_text("../src/fragmentshader.frag");
+	//const char* fragCode =
+	//	"#version 410\n"
+	//	"out vec4 frag_colour;"
+	//	"void main () {"
+	//	" frag_colour = vec4 (0.5, 0.0, 0.5, 1.0);"
+	//	"}";
+
+	// compile shader program
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertexShader, 1, &vertCode, NULL);
+	glCompileShader(vertexShader);
+	check_shader_error(vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentShader, 1, &fragCode, NULL);
+	glCompileShader(fragmentShader);
+	check_shader_error(fragmentShader);
+
+	// linking
+	GLuint shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+
+	// tell the shader what attribute belongs to which in variable name (OGL3.2 compatibility)
+	// has to be done BEFORE linking!
+	glBindAttribLocation(shaderProgram, 0, "vertex_pos");
+	//glBindAttribLocation(shaderProgram, 1, "texture_pos");
+
+	glLinkProgram(shaderProgram);
+	check_shader_error(shaderProgram);
+
+	glDetachShader(shaderProgram, vertexShader);
+	glDetachShader(shaderProgram, fragmentShader);
 
 #else
 
