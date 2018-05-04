@@ -7,7 +7,9 @@ out vec3 fragColors;
 
 void main ()
 {
-  vec4 dv = texture2D(tex, vertex_pos.xy);
-  fragColors = colors;
-  gl_Position = vec4(vertex_pos, 1.0);
+  //gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+
+  vec4 dv = texture2D(tex, colors.xy);
+  fragColors = vec3(colors);
+  gl_Position = vec4(vertex_pos.xy, vertex_pos.z + dv.x * 2.0f, 1.0);
 }

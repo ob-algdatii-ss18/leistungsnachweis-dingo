@@ -247,22 +247,61 @@ int main(int, char*[])
 	glDetachShader(shaderProgram, fragmentShader);
 
 	// test data
-	GLfloat vertices[] = {
-		-0.5f, 0.5f, 0.0f,
-		0.5f, 0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		0.5f, -0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f,
-		-0.5f, 0.5f, 0.0f
+	struct Quad
+	{
+		GLfloat vertices[18] = {
+			0.0f, 0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f
+	//-1.0f, 1.0f, 0.0f,
+	//	1.0f, 1.0f, 0.0f,
+	//	1.0f, -1.0f, 0.0f,
+	//	1.0f, -1.0f, 0.0f,
+	//	-1.0f, -1.0f, 0.0f,
+	//	-1.0f, 1.0f, 0.0f
+		};
 	};
 
+	Quad quad;
+
+	int const gridSize = 100;
+	Quad grid[gridSize * gridSize];
+	for (int row = 0; row < gridSize; ++row)
+	{
+		for (int col = 0; col < gridSize; ++col)
+		{
+			// first triangle
+			grid[row * gridSize + col].vertices[0] += col;
+			grid[row * gridSize + col].vertices[1] += row;
+		
+			grid[row * gridSize + col].vertices[3] += col;
+			grid[row * gridSize + col].vertices[4] += row;
+
+			grid[row * gridSize + col].vertices[6] += col;
+			grid[row * gridSize + col].vertices[7] += row;
+
+			// second triangle
+			grid[row * gridSize + col].vertices[9] += col;
+			grid[row * gridSize + col].vertices[10] += row;
+
+			grid[row * gridSize + col].vertices[12] += col;
+			grid[row * gridSize + col].vertices[13] += row;
+
+			grid[row * gridSize + col].vertices[15] += col;
+			grid[row * gridSize + col].vertices[16] += row;
+		}
+	}
+
 	GLfloat colors[] = {
+		0.0f, 0.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 0.0f,
-		1.0f, 0.0f, 0.0f
+		0.0f, 0.0f, 0.0f
 	};
 
 	GLuint vao = 0;
@@ -272,7 +311,7 @@ int main(int, char*[])
 	GLuint vbo = 0;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(grid), grid[0].vertices, GL_STATIC_DRAW);
 	// first param is index
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	// enable, affects only the previously bound VBOs!
@@ -303,10 +342,10 @@ int main(int, char*[])
 		GL_UNSIGNED_BYTE,
 		&image[0]
 	);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 
 	// link to tex uniform in vertex shader
@@ -392,7 +431,8 @@ int main(int, char*[])
 
 		glBindVertexArray(vao);
 		//glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		int verticesPerQuad = 6;
+		glDrawArrays(GL_TRIANGLES, 0, (sizeof grid / sizeof *grid) * verticesPerQuad); 
 		SDL_GL_SwapWindow(glWindow);
 
 #else 
