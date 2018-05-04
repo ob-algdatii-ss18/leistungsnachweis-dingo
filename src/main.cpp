@@ -287,6 +287,7 @@ int main(int, char*[])
 	// enable, affects only the previously bound VBOs!
 	glEnableVertexAttribArray(1);
 
+	glUseProgram(shaderProgram);
 	// texture
 	GLuint tex = 0;
 	glGenTextures(1, &tex);
@@ -302,9 +303,18 @@ int main(int, char*[])
 		GL_UNSIGNED_BYTE,
 		&image[0]
 	);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 
 	// link to tex uniform in vertex shader
 	int tex_loc = glGetUniformLocation(shaderProgram, "tex");
+	if (tex_loc == -1)
+	{
+		printf("no such active uniform variable in current shader program!\n");
+	}
 	glUniform1i(tex_loc, 0);
 	glActiveTexture(GL_TEXTURE0);
 
