@@ -98,6 +98,57 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
+double OctavePerlin(const std::array <int, 512> &permutation, float x, float y, float z, int octaves) {
+	
+	float total = 0.f;
+	float frequency = 1.f;
+	float amplitude = 1.f;
+
+	// Used for normalizing result to 0.0 - 1.0
+	float maxValue = 0.f; 
+
+	for (int i = 0; i < octaves; i++) {
+
+		total += perlin3D(permutation, x * 0.01f * frequency, y * 0.01f * frequency, z) * amplitude;
+
+		maxValue += amplitude;
+
+		amplitude *= 0.5f;
+		frequency *= 2.f;
+	}
+
+	return total / maxValue;
+}
+
+void render(int components, const std::array <int, 512> &permutation, SDL_Texture* texture, float z) {
+
+	// Write to texture
+	int w, h, pitch;
+	void* pixels;
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+
+	SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+
+	size_t idx = 0;
+	for (int y = 0; y < h; ++y)
+	{
+		for (int x = 0; x < w; ++x)
+		{
+			float perlin = OctavePerlin(permutation, x, y, z, 6);
+
+			// Get 0.0 - 1.0 value to 0 - 255
+			u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
+			for (int c = 0; c < components; ++c)
+			{
+				((u8*)pixels)[idx++] = colorValue;
+			}
+		}
+
+	}
+
+	SDL_UnlockTexture(texture);
+}
+
 int main(int, char*[])
 {
     const int width = 640;
@@ -162,30 +213,7 @@ int main(int, char*[])
 
         // Rendering
         // Generate Image Data. Each Component is a byte in RGBA order.
-        size_t idx = 0;
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                float perlin = perlin3D(permutation, x*0.01f, y*0.01f, z);
-                
-                // Get 0.0 - 1.0 value to 0 - 255
-                u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-                for (int c = 0; c < components; ++c)
-                {
-                    image[idx++] = colorValue;
-                }
-            }
-        }
-
-        // Write to texture
-        int w, h, pitch;
-        void* pixels;
-        SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-
-        SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-        SDL_memcpy(pixels, image.data(), image.size() * sizeof(u8));
-        SDL_UnlockTexture(texture);
+		render(components, permutation, texture, z);
 
         // Render to screen
         SDL_RenderCopy(renderer, texture, 0, 0);
