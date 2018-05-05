@@ -12,6 +12,7 @@ void main ()
 {
   vertex = vertex_pos;
   //gl_TexCoord[0].xy = gl_MultiTexCoord0.xy;
+  // TODO: 100.0f is magic value and depends on grid-size
   vec4 dv = texture2D(tex, vec2(1.0f / 100.0f * vertex_pos.x, 1.0f / 100.0f * vertex_pos.y));
   vertexZ = vertex_pos.z + dv.x;
   fragColors = vec3(colors);

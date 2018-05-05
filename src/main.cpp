@@ -17,6 +17,15 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 
+struct Camera
+{
+	glm::vec3 pos;
+	glm::vec3 target;
+	glm::vec3 up;
+};
+
+static Camera camera;
+
 static inline float perlinFade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
@@ -223,11 +232,15 @@ int main(int, char*[])
 	// Or, for an ortho camera :
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
-	// Camera matrix
+
+	// Camera init and view-matrix
+	camera.pos = glm::vec3(50, 50, 70);
+	camera.target = glm::vec3(0, 0, -1.0);
+	camera.up = glm::vec3(0, 1, 0);
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(50, 50, 30), // Camera is at (4,3,3), in World Space
-		glm::vec3(0, 0, 0), // and looks at the origin
-		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+		camera.pos, // Camera is at (4,3,3), in World Space
+		camera.target, // and looks at the origin
+		camera.up  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 
 	// Model matrix : an identity matrix (model will be at the origin)
@@ -278,12 +291,6 @@ int main(int, char*[])
 			1.0f, 1.0f, 0.0f,
 			0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 0.0f
-	//-1.0f, 1.0f, 0.0f,
-	//	1.0f, 1.0f, 0.0f,
-	//	1.0f, -1.0f, 0.0f,
-	//	1.0f, -1.0f, 0.0f,
-	//	-1.0f, -1.0f, 0.0f,
-	//	-1.0f, 1.0f, 0.0f
 		};
 	};
 
@@ -325,33 +332,6 @@ int main(int, char*[])
 			//grid[row * gridSize + col].vertices[17] = perlin;
 		}
 	}
-
-	//// HACK(Michael): normalizing grid vertices
-	//for (int row = 0; row < gridSize; ++row)
-	//{
-	//	for (int col = 0; col < gridSize; ++col)
-	//	{
-	//		// first triangle
-	//		grid[row * gridSize + col].vertices[0] /= gridSize;
-	//		grid[row * gridSize + col].vertices[1] /= gridSize;
-
-	//		grid[row * gridSize + col].vertices[3] /= gridSize;
-	//		grid[row * gridSize + col].vertices[4] /= gridSize;
-
-	//		grid[row * gridSize + col].vertices[6] /= gridSize;
-	//		grid[row * gridSize + col].vertices[7] /= gridSize;
-
-	//		// second triangle
-	//		grid[row * gridSize + col].vertices[9] /= gridSize;
-	//		grid[row * gridSize + col].vertices[10] /= gridSize;
-
-	//		grid[row * gridSize + col].vertices[12] /= gridSize;
-	//		grid[row * gridSize + col].vertices[13] /= gridSize;
-
-	//		grid[row * gridSize + col].vertices[15] /= gridSize;
-	//		grid[row * gridSize + col].vertices[16] /= gridSize;
-	//	}
-	//}
 
 	GLfloat colors[] = {
 		0.0f, 0.0f, 0.0f,
@@ -462,6 +442,25 @@ int main(int, char*[])
         {
             if (event.type == SDL_QUIT)
                 running = false;
+
+#ifdef RENDER_OPEN_GL
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_D)
+			{
+				camera.pos += 1.0f * glm::normalize(glm::cross(camera.target, camera.up));
+			}
+
+			// recompute matrices and upload to GPU
+			glm::mat4 View = glm::lookAt(
+				camera.pos, // Camera is at (4,3,3), in World Space
+				camera.pos + camera.target, // target
+				camera.up  // Head is up (set to 0,-1,0 to look upside-down)
+			);
+
+			//glm::mat4 Model = glm::mat4(1.0f);
+			mvp = Projection * View * Model;
+			glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+#endif
         }
 
 
@@ -502,8 +501,8 @@ int main(int, char*[])
 		glBindVertexArray(vao);
 		//glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
 		int verticesPerQuad = 6;
-		glPolygonMode(GL_FRONT, GL_LINE);
-		glDrawArrays(GL_LINES, 0, (sizeof grid / sizeof *grid) * verticesPerQuad); 
+		//glPolygonMode(GL_FRONT, GL_LINE);
+		glDrawArrays(GL_TRIANGLES, 0, (sizeof grid / sizeof *grid) * verticesPerQuad); 
 		SDL_GL_SwapWindow(glWindow);
 
 #else 
@@ -523,7 +522,7 @@ int main(int, char*[])
 
 #endif
 
-        z += 0.1f;
+        z += 0.05f;
         // Wrap the value to not run into floating point issues
         z = fmod(z, 256.f);
     }
