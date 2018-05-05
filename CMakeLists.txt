@@ -57,8 +57,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 #Includes
 include_directories(src
-					${THIRD_PARTY_INCLUDES}
-					./ThirdParty/googletest)
+					${THIRD_PARTY_INCLUDES})
 
 #Source Files
 file(GLOB_RECURSE SOURCES
@@ -91,8 +90,8 @@ foreach(loop_var ${THIRD_PARTY_BINS})
 endforeach(loop_var)	
 endif()
 
-# Test Executable
-add_subdirectory(ThirdParty/googletest)
-
-add_executable(tests test/testMain.cpp ${ALL_SOURCE_FILES})
-target_link_libraries(tests gtest gtest_main ${THIRD_PARTY_LIBS})
+include(gtest.cmake)
+enable_testing()
+add_executable(tests test/testMain.cpp)
+target_link_libraries(tests gtest gtest_main)
+add_test(tests tests)
