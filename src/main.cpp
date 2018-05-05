@@ -14,6 +14,9 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+
 static inline float perlinFade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
@@ -213,6 +216,25 @@ int main(int, char*[])
 		return 1;
 	}
 
+	// glm garbage
+	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+
+	// Or, for an ortho camera :
+	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
+
+	// Camera matrix
+	glm::mat4 View = glm::lookAt(
+		glm::vec3(50, 50, 30), // Camera is at (4,3,3), in World Space
+		glm::vec3(0, 0, 0), // and looks at the origin
+		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+	);
+
+	// Model matrix : an identity matrix (model will be at the origin)
+	glm::mat4 Model = glm::mat4(1.0f);
+	// Our ModelViewProjection : multiplication of our 3 matrices
+	glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
+
 	// create shaders
 	// load shader text from files
 	char * vertCode = load_text("../src/vertexshader.vert");
@@ -268,32 +290,68 @@ int main(int, char*[])
 	Quad quad;
 
 	int const gridSize = 100;
-	Quad grid[gridSize * gridSize];
+	Quad grid[gridSize * gridSize]; // TODO:(Michael): this can get dicy when big, cause on stack!
+	//float z_ = 0.1f;
+	//z_ = fmod(z_, 256.f);
 	for (int row = 0; row < gridSize; ++row)
 	{
 		for (int col = 0; col < gridSize; ++col)
 		{
+			//float perlin = perlin3D(permutation, col*0.01f, row*0.01f, z_);
 			// first triangle
 			grid[row * gridSize + col].vertices[0] += col;
 			grid[row * gridSize + col].vertices[1] += row;
-		
+			//grid[row * gridSize + col].vertices[2] = perlin;
+
 			grid[row * gridSize + col].vertices[3] += col;
 			grid[row * gridSize + col].vertices[4] += row;
+			//grid[row * gridSize + col].vertices[5] = perlin;
 
 			grid[row * gridSize + col].vertices[6] += col;
 			grid[row * gridSize + col].vertices[7] += row;
+			//grid[row * gridSize + col].vertices[8] = perlin;
 
 			// second triangle
 			grid[row * gridSize + col].vertices[9] += col;
 			grid[row * gridSize + col].vertices[10] += row;
+			//grid[row * gridSize + col].vertices[11] = perlin;
 
 			grid[row * gridSize + col].vertices[12] += col;
 			grid[row * gridSize + col].vertices[13] += row;
+			//grid[row * gridSize + col].vertices[14] = perlin;
 
 			grid[row * gridSize + col].vertices[15] += col;
 			grid[row * gridSize + col].vertices[16] += row;
+			//grid[row * gridSize + col].vertices[17] = perlin;
 		}
 	}
+
+	//// HACK(Michael): normalizing grid vertices
+	//for (int row = 0; row < gridSize; ++row)
+	//{
+	//	for (int col = 0; col < gridSize; ++col)
+	//	{
+	//		// first triangle
+	//		grid[row * gridSize + col].vertices[0] /= gridSize;
+	//		grid[row * gridSize + col].vertices[1] /= gridSize;
+
+	//		grid[row * gridSize + col].vertices[3] /= gridSize;
+	//		grid[row * gridSize + col].vertices[4] /= gridSize;
+
+	//		grid[row * gridSize + col].vertices[6] /= gridSize;
+	//		grid[row * gridSize + col].vertices[7] /= gridSize;
+
+	//		// second triangle
+	//		grid[row * gridSize + col].vertices[9] /= gridSize;
+	//		grid[row * gridSize + col].vertices[10] /= gridSize;
+
+	//		grid[row * gridSize + col].vertices[12] /= gridSize;
+	//		grid[row * gridSize + col].vertices[13] /= gridSize;
+
+	//		grid[row * gridSize + col].vertices[15] /= gridSize;
+	//		grid[row * gridSize + col].vertices[16] /= gridSize;
+	//	}
+	//}
 
 	GLfloat colors[] = {
 		0.0f, 0.0f, 0.0f,
@@ -357,6 +415,17 @@ int main(int, char*[])
 	glUniform1i(tex_loc, 0);
 	glActiveTexture(GL_TEXTURE0);
 
+	// uniform for MPV
+	// Get a handle for our "MVP" uniform
+	// Only during the initialisation
+	GLuint MatrixID = glGetUniformLocation(shaderProgram, "MVP");
+
+	// Send our transformation to the currently bound shader, in the "MVP" uniform
+	// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+
+	glViewport(0, 0, 640, 480);
+
 #else
 
     //The window we'll be rendering to
@@ -409,7 +478,7 @@ int main(int, char*[])
         {
             for (int x = 0; x < width; ++x)
             {
-                float perlin = perlin3D(permutation, x*0.01f, y*0.01f, z);
+                float perlin = perlin3D(permutation, x*0.02f, y*0.02f, z);
                 
                 // Get 0.0 - 1.0 value to 0 - 255
                 u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
@@ -422,6 +491,7 @@ int main(int, char*[])
 
 
 #ifdef RENDER_OPEN_GL
+
 		glUseProgram(shaderProgram);
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
 		/* Clear our buffer with a red background */
@@ -432,7 +502,8 @@ int main(int, char*[])
 		glBindVertexArray(vao);
 		//glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
 		int verticesPerQuad = 6;
-		glDrawArrays(GL_TRIANGLES, 0, (sizeof grid / sizeof *grid) * verticesPerQuad); 
+		glPolygonMode(GL_FRONT, GL_LINE);
+		glDrawArrays(GL_LINES, 0, (sizeof grid / sizeof *grid) * verticesPerQuad); 
 		SDL_GL_SwapWindow(glWindow);
 
 #else 
