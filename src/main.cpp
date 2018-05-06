@@ -9,8 +9,6 @@
 
 #include "watch3d.h"
 
-#define RENDER_OPEN_GL
-
 static inline float perlinFade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);  // 6t^5 - 15t^4 + 10t^3
@@ -117,6 +115,28 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
+float OctavePerlin(const std::array<int, 512>& permutation, float x, float y, float z, int octaves)
+{
+    float total = 0.f;
+    float frequency = .4f;
+    float amplitude = .6f;
+
+    // Used for normalizing result to 0.0 - 1.0
+    float maxValue = 0.f;
+
+    for (int i = 0; i < octaves; i++)
+    {
+        total += perlin3D(permutation, x * 0.01f * frequency, y * 0.01f * frequency, z) * amplitude;
+
+        maxValue += amplitude;
+
+        amplitude *= 0.5f;
+        frequency *= 2.f;
+    }
+
+    return total / maxValue;
+}
+
 int main(int, char* [])
 {
     const int width = 640;
@@ -148,32 +168,11 @@ int main(int, char* [])
         return 1;
     }
 
-#ifdef RENDER_OPEN_GL
-
     W3dContext renderCtx = initGL(width, height);
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
     create_grid(100, shader, renderCtx, image, MVP);
-
-#else
-
-    // The window we'll be rendering to
-    SDL_Window* window = NULL;
-    // SDL2 window
-    window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width,
-                              height, SDL_WINDOW_SHOWN);
-    if (window == NULL)
-    {
-        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-                                             SDL_TEXTUREACCESS_STREAMING, 640, 480);
-
-#endif
 
     // Running var for animation
     float z = 0.f;
@@ -203,7 +202,7 @@ int main(int, char* [])
         {
             for (int x = 0; x < width; ++x)
             {
-                float perlin = perlin3D(permutation, x * 0.01f, y * 0.01f, z);
+                float perlin = OctavePerlin(permutation, x, y, z, 6);
 
                 // Get 0.0 - 1.0 value to 0 - 255
                 u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
@@ -214,26 +213,7 @@ int main(int, char* [])
             }
         }
 
-#ifdef RENDER_OPEN_GL
-
         render(renderCtx, shader, image);
-
-#else
-
-        // Write to texture
-        int w, h, pitch;
-        void* pixels;
-        SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-
-        SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-        SDL_memcpy(pixels, image.data(), image.size() * sizeof(u8));
-        SDL_UnlockTexture(texture);
-
-        // Render to screen
-        SDL_RenderCopy(renderer, texture, 0, 0);
-        SDL_RenderPresent(renderer);
-
-#endif
 
         z += 0.05f;
         // Wrap the value to not run into floating point issues
