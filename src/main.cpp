@@ -1,11 +1,11 @@
-#include "TypeDef.h"
-#include <functional>
-#include <random>
-#include <numeric>
-#include <array>
-#include <algorithm>
 #include <SDL.h>
+#include <algorithm>
+#include <array>
 #include <chrono>
+#include <functional>
+#include <numeric>
+#include <random>
+#include "TypeDef.h"
 
 #include "watch3d.h"
 
@@ -13,36 +13,51 @@
 
 static inline float perlinFade(float t)
 {
-    return t * t * t * (t * (t * 6 - 15) + 10);         // 6t^5 - 15t^4 + 10t^3
+    return t * t * t * (t * (t * 6 - 15) + 10);  // 6t^5 - 15t^4 + 10t^3
 }
 
 static inline float grad(int hash, float x, float y, float z)
 {
     switch (hash & 0xF)
     {
-    case 0x0: return  x + y;
-    case 0x1: return -x + y;
-    case 0x2: return  x - y;
-    case 0x3: return -x - y;
-    case 0x4: return  x + z;
-    case 0x5: return -x + z;
-    case 0x6: return  x - z;
-    case 0x7: return -x - z;
-    case 0x8: return  y + z;
-    case 0x9: return -y + z;
-    case 0xA: return  y - z;
-    case 0xB: return -y - z;
-    case 0xC: return  y + x;
-    case 0xD: return -y + z;
-    case 0xE: return  y - x;
-    case 0xF: return -y - z;
-    default: return 0; // never happens
+        case 0x0:
+            return x + y;
+        case 0x1:
+            return -x + y;
+        case 0x2:
+            return x - y;
+        case 0x3:
+            return -x - y;
+        case 0x4:
+            return x + z;
+        case 0x5:
+            return -x + z;
+        case 0x6:
+            return x - z;
+        case 0x7:
+            return -x - z;
+        case 0x8:
+            return y + z;
+        case 0x9:
+            return -y + z;
+        case 0xA:
+            return y - z;
+        case 0xB:
+            return -y - z;
+        case 0xC:
+            return y + x;
+        case 0xD:
+            return -y + z;
+        case 0xE:
+            return y - x;
+        case 0xF:
+            return -y - z;
+        default:
+            return 0;  // never happens
     }
 }
 
-static inline float lerp(float a, float b, float x) {
-    return a + x * (b - a);
-}
+static inline float lerp(float a, float b, float x) { return a + x * (b - a); }
 
 static int perlin_fastfloor(float a)
 {
@@ -102,11 +117,8 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
-
-
-int main(int, char*[])
+int main(int, char* [])
 {
-
     const int width = 640;
     const int height = 480;
     const int components = 4;  // RGBA
@@ -129,33 +141,28 @@ int main(int, char*[])
     // Copy back to avoid overflows (we can query from [0,512[ to avoid doing modulos everywhere
     std::copy(permutation.begin(), permEnd, permEnd);
 
-    //Initialize SDL
+    // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
 
-
 #ifdef RENDER_OPEN_GL
 
-	W3dContext renderCtx = initGL(width, height);
-	Camera camera = create_camera();
-	glm::mat4 MVP = create_mvp(renderCtx, camera);
-	Shader shader = create_shader_program();
-	create_grid(100, shader, renderCtx, image, MVP);
+    W3dContext renderCtx = initGL(width, height);
+    Camera camera = create_camera();
+    glm::mat4 MVP = create_mvp(renderCtx, camera);
+    Shader shader = create_shader_program();
+    create_grid(100, shader, renderCtx, image, MVP);
 
 #else
 
-    //The window we'll be rendering to
+    // The window we'll be rendering to
     SDL_Window* window = NULL;
-	// SDL2 window
-    window = SDL_CreateWindow(
-		"SDL Window", 
-		SDL_WINDOWPOS_UNDEFINED, 
-		SDL_WINDOWPOS_UNDEFINED, 
-		width, height, 
-		SDL_WINDOW_SHOWN);
+    // SDL2 window
+    window = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width,
+                              height, SDL_WINDOW_SHOWN);
     if (window == NULL)
     {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -163,14 +170,14 @@ int main(int, char*[])
     }
 
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 640, 480);
+    SDL_Texture* texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+                                             SDL_TEXTUREACCESS_STREAMING, 640, 480);
 
 #endif
 
-    
-	// Running var for animation
+    // Running var for animation
     float z = 0.f;
-    bool  running = true;
+    bool running = true;
 
     u32 start = SDL_GetTicks();
     while (running)
@@ -182,7 +189,6 @@ int main(int, char*[])
             if (event.type == SDL_QUIT)
                 running = false;
         }
-
 
         // Calculate Delta-Time to see runtime
         u32 current = SDL_GetTicks();
@@ -197,8 +203,8 @@ int main(int, char*[])
         {
             for (int x = 0; x < width; ++x)
             {
-                float perlin = perlin3D(permutation, x*0.01f, y*0.01f, z);
-                
+                float perlin = perlin3D(permutation, x * 0.01f, y * 0.01f, z);
+
                 // Get 0.0 - 1.0 value to 0 - 255
                 u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
                 for (int c = 0; c < components; ++c)
@@ -208,12 +214,11 @@ int main(int, char*[])
             }
         }
 
-
 #ifdef RENDER_OPEN_GL
 
-		render(renderCtx, shader, image);
+        render(renderCtx, shader, image);
 
-#else 
+#else
 
         // Write to texture
         int w, h, pitch;
@@ -224,7 +229,7 @@ int main(int, char*[])
         SDL_memcpy(pixels, image.data(), image.size() * sizeof(u8));
         SDL_UnlockTexture(texture);
 
-		// Render to screen
+        // Render to screen
         SDL_RenderCopy(renderer, texture, 0, 0);
         SDL_RenderPresent(renderer);
 
