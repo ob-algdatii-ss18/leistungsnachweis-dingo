@@ -1,3 +1,46 @@
+﻿/*
+
+                              
+  .--,-``-.                  
+ /   /     '.      ,---,     
+/ ../        ;   .'  .' `\   
+\ ``\  .`-    ',---.'     \  
+ \___\/   \   :|   |  .`\  | 
+      \   :   |:   : |  '  | 
+      /  /   / |   ' '  ;  : 
+      \  \   \ '   | ;  .  | 
+  ___ /   :   ||   | :  |  ' 
+ /   /\   /   :'   : | /  ;  
+/ ,,/  ',-    .|   | '` ,/   
+\ ''\        ; ;   :  .'     
+ \   \     .'  |   ,.'       
+  `--`-,,-'    '---' 
+
+ 3D RENDERING!
+
+
+ This is not the final API - I just pulled out the code from main.cpp.
+ Will deal with a cleaner version MAYBE later.
+ For the presentation we need something to show, so this will do.
+
+ Use the define in main.cpp to toggle between 2d (SDL only) and 3d rendering.
+ Have to find a way to open them at the same time (actually that is not
+ the problem but the windows events won't get handled  properly).
+
+
+
+				We staked out on a mission to find our inner peace
+
+				Make it everlasting so nothing's incomplete
+
+				It's easy being with you, sacred simplicity
+
+				As long as we're together, there's no place I'd rather be
+
+
+*/
+
+
 #include "watch3d.h"
 
 
@@ -5,6 +48,7 @@
 static Quad quad;
 static std::vector<Quad> grid;
 static GLuint vao;
+static GLuint tex;
 
 char* load_text(char const * filename)
 {
@@ -95,15 +139,15 @@ Camera create_camera()
 
 glm::mat4 create_mvp(W3dContext context, Camera camera)
 {
-	// Projection matrix : 45� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
+	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 
 		(float)context.width / (float)context.height, 
 		0.1f, 1000.0f);
 
 	glm::mat4 View = glm::lookAt(
-		camera.pos, // Camera is at (4,3,3), in World Space
-		camera.target, // and looks at the origin
-		camera.up  // Head is up (set to 0,-1,0 to look upside-down)
+		camera.pos, 
+		camera.target, 
+		camera.up 
 	);
 
 	// Model matrix : bottom left corner (tile 0,0) of grid is at 0,0 in world coordinates.
@@ -112,8 +156,7 @@ glm::mat4 create_mvp(W3dContext context, Camera camera)
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		-50.0f, -50.0f, 0.0f, 1.0f);
-	// Our ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
+	glm::mat4 mvp = Projection * View * Model; 
 
 	return mvp;
 }
@@ -156,39 +199,32 @@ Shader create_shader_program()
 	return { shaderProgram };
 }
 
-void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<u8>& image, glm::mat4 mvp)
+void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<u8> image, glm::mat4 mvp)
 {
 	grid = std::vector<Quad>(gridSize * gridSize);
 	for (int row = 0; row < gridSize; ++row)
 	{
 		for (int col = 0; col < gridSize; ++col)
 		{
-			//float perlin = perlin3D(permutation, col*0.01f, row*0.01f, z_);
 			// first triangle
 			grid[row * gridSize + col].vertices[0] += col;
 			grid[row * gridSize + col].vertices[1] += row;
-			//grid[row * gridSize + col].vertices[2] = perlin;
 
 			grid[row * gridSize + col].vertices[3] += col;
 			grid[row * gridSize + col].vertices[4] += row;
-			//grid[row * gridSize + col].vertices[5] = perlin;
 
 			grid[row * gridSize + col].vertices[6] += col;
 			grid[row * gridSize + col].vertices[7] += row;
-			//grid[row * gridSize + col].vertices[8] = perlin;
 
 			// second triangle
 			grid[row * gridSize + col].vertices[9] += col;
 			grid[row * gridSize + col].vertices[10] += row;
-			//grid[row * gridSize + col].vertices[11] = perlin;
 
 			grid[row * gridSize + col].vertices[12] += col;
 			grid[row * gridSize + col].vertices[13] += row;
-			//grid[row * gridSize + col].vertices[14] = perlin;
 
 			grid[row * gridSize + col].vertices[15] += col;
 			grid[row * gridSize + col].vertices[16] += row;
-			//grid[row * gridSize + col].vertices[17] = perlin;
 		}
 	}
 
@@ -225,7 +261,7 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<u8
 
 	glUseProgram(shader.program);
 	// texture
-	GLuint tex = 0;
+	tex = 0;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glTexImage2D(
@@ -244,7 +280,6 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<u8
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-
 	// link to tex uniform in vertex shader
 	int tex_loc = glGetUniformLocation(shader.program, "tex");
 	if (tex_loc == -1)
@@ -254,31 +289,25 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<u8
 	glUniform1i(tex_loc, 0);
 	glActiveTexture(GL_TEXTURE0);
 
-	// uniform for MPV
-	// Get a handle for our "MVP" uniform
-	// Only during the initialisation
 	GLuint MatrixID = glGetUniformLocation(shader.program, "MVP");
-
-	// Send our transformation to the currently bound shader, in the "MVP" uniform
-	// This is done in the main loop since each model will have a different MVP matrix (At least for the M part)
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
-	glViewport(0, 0, 640, 480);
+	glViewport(0, 0, context.width, context.height);
 }
 
-void render(W3dContext context, Shader shader, std::vector<u8>& image)
+void render(W3dContext context, Shader shader, std::vector<u8> image)
 {
 	glUseProgram(shader.program);
-	//glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, context.width, context.width, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
-	/* Clear our buffer with a red background */
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, context.width, context.height, GL_RGBA, GL_UNSIGNED_BYTE, &image[0]);
+
 	glClearColor(0.2, 0.2, 0.2, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	/* Swap our back buffer to the front */
 
 	glBindVertexArray(vao);
 	//glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
 	int verticesPerQuad = 6;
 	//glPolygonMode(GL_FRONT, GL_LINE);
-	glDrawArrays(GL_TRIANGLES, 0, grid.size() * verticesPerQuad);
+	glDrawArrays(GL_LINES, 0, grid.size() * verticesPerQuad);
 	SDL_GL_SwapWindow(context.sdlWnd);
 }

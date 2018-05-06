@@ -53,8 +53,10 @@ glm::mat4 create_mvp(W3dContext context, Camera camera);
 Shader create_shader_program();
 void create_grid(int gridSize, Shader shader,
 	W3dContext context,
-	std::vector<u8>& image,
+	std::vector<u8> image,
 	glm::mat4 mvp);
-void render(W3dContext context, Shader shader, std::vector<u8>& image);
+void render(W3dContext context, 
+	Shader shader, 
+	std::vector<u8> image);
 
 #endif
