@@ -16,5 +16,5 @@ void main ()
   vec4 dv = texture2D(tex, vec2(1.0f / 100.0f * vertex_pos.x, 1.0f / 100.0f * vertex_pos.y));
   vertexZ = vertex_pos.z + dv.x;
   fragColors = vec3(colors);
-  gl_Position = MVP * vec4(vertex_pos.x, vertex_pos.y, vertex_pos.z + dv.x * 20.0f, 1.0);
+  gl_Position = MVP * vec4(vertex_pos.xy, vertex_pos.z + dv.x * 30.0f, 1.0);
 }
