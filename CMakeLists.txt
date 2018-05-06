@@ -47,10 +47,30 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 		endif()
 		find_package(SDL2 REQUIRED)
 		
+	## GLM (Header Only)
+		set(GLM_INCLUDES 	ThirdParty/glm/glm)
+
+	## GLEW 
+		# Turn stuff off that we do not need
+		SET(BUILD_UTILS OFF CACHE BOOL "utilities")
+
+		# Add glew (it has a cmake build option)
+		add_subdirectory(ThirdParty/glew-2.1.0/build/cmake)
+
+		# Set Include Paths
+		set(GLEW_INCLUDES 	ThirdParty/glew-2.1.0/include)
+
+		# Set Libraries to Link to: Use the static one!
+		set(GLEW_LIBRARIES 	glew_s)
+
 	## 3rd Party Includes
-		set(THIRD_PARTY_INCLUDES 	ThirdParty ${SDL2_INCLUDE_DIRS})		
+		set(THIRD_PARTY_INCLUDES 	ThirdParty
+									${GLM_INCLUDES}
+									${GLEW_INCLUDES}									
+									${SDL2_INCLUDE_DIRS})		
 		
-		set(THIRD_PARTY_LIBS 		${SDL2_LIBRARIES})
+		set(THIRD_PARTY_LIBS 		${GLEW_LIBRARIES}
+									${SDL2_LIBRARIES})
 		
 		set(THIRD_PARTY_SRC_FILES   )
 		set(THIRD_PARTY_BINS ${SDL2_BINS})
