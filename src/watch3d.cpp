@@ -123,9 +123,9 @@ Camera create_camera()
     Camera camera;
 
     // Camera init
-    camera.pos = glm::vec3(0, 0, 70);
+    camera.pos = glm::vec3(0.0f, -100.0f, 70.0f);
     camera.target = glm::vec3(0.0f, 0.0f, 0.0f);
-    camera.up = glm::vec3(0, 1, 0);
+    camera.up = glm::vec3(0.0f, 1.0f, 0.0f);
 	camera.velocity = 10.0f;
 
     return camera;

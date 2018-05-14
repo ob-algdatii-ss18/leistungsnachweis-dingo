@@ -177,6 +177,7 @@ int main(int, char* [])
     // Running var for animation
     float z = 0.f;
     bool running = true;
+	bool first = true;
 
     u32 start = SDL_GetTicks();
     while (running)
@@ -227,21 +228,25 @@ int main(int, char* [])
 
         // Rendering
         // Generate Image Data. Each Component is a byte in RGBA order.
-        size_t idx = 0;
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                float perlin = OctavePerlin(permutation, x, y, z, 6);
+		if (first)
+		{
+			size_t idx = 0;
+			for (int y = 0; y < height; ++y)
+			{
+				for (int x = 0; x < width; ++x)
+				{
+					float perlin = OctavePerlin(permutation, x, y, z, 6);
 
-                // Get 0.0 - 1.0 value to 0 - 255
-                u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-                for (int c = 0; c < components; ++c)
-                {
-                    image[idx++] = colorValue;
-                }
-            }
-        }
+					// Get 0.0 - 1.0 value to 0 - 255
+					u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
+					for (int c = 0; c < components; ++c)
+					{
+						image[idx++] = colorValue;
+					}
+				}
+			}
+			first = false;
+		}
 
         render(renderCtx, shader, image);
 
