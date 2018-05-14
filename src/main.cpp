@@ -187,7 +187,37 @@ int main(int, char* [])
         {
             if (event.type == SDL_QUIT)
                 running = false;
+
+			if (event.key.keysym.scancode == SDL_SCANCODE_W)
+			{
+				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+				camera.pos += camForward * camera.velocity;
+				camera.target = camera.pos + camForward;
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_S)
+			{
+				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+				camera.pos -=  camForward * camera.velocity;
+				camera.target = camera.pos + camForward;
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_D)
+			{
+				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+				glm::vec3 right = glm::normalize(glm::cross(camForward, camera.up));
+				camera.pos += right * camera.velocity;
+				camera.target = camera.pos + camForward;
+			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_A)
+			{
+				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+				glm::vec3 left = glm::normalize(glm::cross(-camForward, camera.up));
+				camera.pos += left * camera.velocity;
+				camera.target = camera.pos + camForward;
+			}
         }
+
+		MVP = create_mvp(renderCtx, camera);
+		update_mvp(MVP, shader);
 
         // Calculate Delta-Time to see runtime
         u32 current = SDL_GetTicks();

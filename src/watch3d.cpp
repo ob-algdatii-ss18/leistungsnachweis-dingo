@@ -123,9 +123,10 @@ Camera create_camera()
     Camera camera;
 
     // Camera init
-    camera.pos = glm::vec3(0, -150, 70);
-    camera.target = glm::vec3(0, 0, -1.0);
+    camera.pos = glm::vec3(0, 0, 70);
+    camera.target = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.up = glm::vec3(0, 1, 0);
+	camera.velocity = 10.0f;
 
     return camera;
 }
@@ -136,6 +137,7 @@ glm::mat4 create_mvp(W3dContext context, Camera camera)
     glm::mat4 Projection = glm::perspective(
         glm::radians(45.0f), (float)context.width / (float)context.height, 0.1f, 1000.0f);
 
+	//glm::vec3 camForward = glm::normalize(camera.target - camera.pos);
     glm::mat4 View = glm::lookAt(camera.pos, camera.target, camera.up);
 
     // Model matrix : bottom left corner (tile 0,0) of grid is at 0,0 in world coordinates.
@@ -145,6 +147,12 @@ glm::mat4 create_mvp(W3dContext context, Camera camera)
     glm::mat4 mvp = Projection * View * Model;
 
     return mvp;
+}
+
+void update_mvp(glm::mat4 & mvp, Shader & shader)
+{
+	GLuint MatrixID = glGetUniformLocation(shader.program, "MVP");
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 }
 
 Shader create_shader_program()
@@ -281,6 +289,6 @@ void render(W3dContext context, Shader shader, std::vector<u8> image)
     // glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
     int verticesPerQuad = 6;
     // glPolygonMode(GL_FRONT, GL_LINE);
-    glDrawArrays(GL_LINES, 0, grid.size() * verticesPerQuad);
+    glDrawArrays(GL_TRIANGLES, 0, grid.size() * verticesPerQuad);
     SDL_GL_SwapWindow(context.sdlWnd);
 }
