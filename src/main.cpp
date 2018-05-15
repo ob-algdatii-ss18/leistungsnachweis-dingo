@@ -9,6 +9,17 @@
 
 #include "watch3d.h"
 
+unsigned int keystates[512];
+
+void process_keys()
+{
+	if (keystates[SDL_SCANCODE_A])
+	{
+		printf("A key pressed\n");
+		keystates[SDL_SCANCODE_A] = 0;
+	}
+}
+
 static inline float perlinFade(float t)
 {
     return t * t * t * (t * (t * 6 - 15) + 10);  // 6t^5 - 15t^4 + 10t^3
@@ -210,12 +221,14 @@ int main(int, char* [])
 			}
 			if (event.key.keysym.scancode == SDL_SCANCODE_A)
 			{
+				keystates[SDL_SCANCODE_A] = 1;
 				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
 				glm::vec3 left = glm::normalize(glm::cross(-camForward, camera.up));
 				camera.pos += left * camera.velocity;
 				camera.target = camera.pos + camForward;
 			}
         }
+		process_keys();
 
 		MVP = create_mvp(renderCtx, camera);
 		update_mvp(MVP, shader);
@@ -254,6 +267,7 @@ int main(int, char* [])
         // Wrap the value to not run into floating point issues
         z = fmod(z, 256.f);
     }
+
 
     return 0;
 }
