@@ -11,12 +11,34 @@
 
 unsigned int keystates[512];
 
-void process_keys()
+void process_keys(Camera & camera)
 {
 	if (keystates[SDL_SCANCODE_A])
 	{
 		printf("A key pressed\n");
-		keystates[SDL_SCANCODE_A] = 0;
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		glm::vec3 left = glm::normalize(glm::cross(-camForward, camera.up));
+		camera.pos += left * camera.velocity;
+		camera.target = camera.pos + camForward;
+	}
+	if (keystates[SDL_SCANCODE_D])
+	{
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		glm::vec3 right = glm::normalize(glm::cross(camForward, camera.up));
+		camera.pos += right * camera.velocity;
+		camera.target = camera.pos + camForward;
+	}
+	if (keystates[SDL_SCANCODE_W])
+	{
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		camera.pos += camForward * camera.velocity;
+		camera.target = camera.pos + camForward;
+	}
+	if (keystates[SDL_SCANCODE_S])
+	{
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		camera.pos -= camForward * camera.velocity;
+		camera.target = camera.pos + camForward;
 	}
 }
 
@@ -200,35 +222,16 @@ int main(int, char* [])
             if (event.type == SDL_QUIT)
                 running = false;
 
-			if (event.key.keysym.scancode == SDL_SCANCODE_W)
+			if (event.type == SDL_KEYDOWN)
 			{
-				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-				camera.pos += camForward * camera.velocity;
-				camera.target = camera.pos + camForward;
+				keystates[event.key.keysym.scancode] = 1;
 			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_S)
+			if (event.type == SDL_KEYUP)
 			{
-				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-				camera.pos -=  camForward * camera.velocity;
-				camera.target = camera.pos + camForward;
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_D)
-			{
-				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-				glm::vec3 right = glm::normalize(glm::cross(camForward, camera.up));
-				camera.pos += right * camera.velocity;
-				camera.target = camera.pos + camForward;
-			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_A)
-			{
-				keystates[SDL_SCANCODE_A] = 1;
-				glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-				glm::vec3 left = glm::normalize(glm::cross(-camForward, camera.up));
-				camera.pos += left * camera.velocity;
-				camera.target = camera.pos + camForward;
+				keystates[event.key.keysym.scancode] = 0;
 			}
         }
-		process_keys();
+		process_keys(camera);
 
 		MVP = create_mvp(renderCtx, camera);
 		update_mvp(MVP, shader);
