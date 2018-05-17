@@ -15,7 +15,6 @@ void process_keys(Camera & camera)
 {
 	if (keystates[SDL_SCANCODE_A])
 	{
-		printf("A key pressed\n");
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
 		glm::vec3 left = glm::normalize(glm::cross(-camForward, camera.up));
 		camera.pos += left * camera.velocity;
@@ -38,6 +37,20 @@ void process_keys(Camera & camera)
 	{
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
 		camera.pos -= camForward * camera.velocity;
+		camera.target = camera.pos + camForward;
+	}
+	if (keystates[SDL_SCANCODE_RIGHT])
+	{
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		camForward.x = (camForward.x * cos((float)M_PI / 360.0f) - camForward.z * sin((float)M_PI / 360.0f)) * camera.velocity;
+		camForward.z = (camForward.x * sin((float)M_PI / 360.0f) + camForward.z * cos((float)M_PI / 360.0f)) * camera.velocity;
+		camera.target = camera.pos + camForward;
+	}
+	if (keystates[SDL_SCANCODE_LEFT])
+	{
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		camForward.x = (camForward.x * cos(-(float)M_PI / 360.0f) - camForward.z * sin(-(float)M_PI / 360.0f)) * camera.velocity;
+		camForward.z = (camForward.x * sin(-(float)M_PI / 360.0f) + camForward.z * cos(-(float)M_PI / 360.0f)) * camera.velocity;
 		camera.target = camera.pos + camForward;
 	}
 }
@@ -221,6 +234,8 @@ int main(int, char* [])
         {
             if (event.type == SDL_QUIT)
                 running = false;
+			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+				running = false;
 
 			if (event.type == SDL_KEYDOWN)
 			{
