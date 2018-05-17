@@ -51,10 +51,26 @@ void process_keys(Camera & camera)
 	{
 		float pitch = -((float)PI / 360.0f) * camera.velocity;
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.x = (camForward.x * cos(pitch) - camForward.z * sin(pitch)) * camera.velocity;
-		camForward.z = (camForward.x * sin(pitch) + camForward.z * cos(pitch)) * camera.velocity;
+		camForward.x = (camForward.x * cos(pitch) - camForward.z * sin(pitch));
+		camForward.z = (camForward.x * sin(pitch) + camForward.z * cos(pitch));
 		camera.target = camera.pos + camForward;
-	} 
+	}
+	if (keystates[SDL_SCANCODE_UP])
+	{
+		float yaw = -((float)PI / 360.0f) * camera.velocity;
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		camForward.z = (camForward.z * cos(yaw) - camForward.y * sin(yaw));
+		camForward.y = (camForward.z * sin(yaw) + camForward.y * cos(yaw));
+		camera.target = camera.pos + camForward;
+	}
+	if (keystates[SDL_SCANCODE_DOWN])
+	{
+		float yaw = ((float)PI / 360.0f) * camera.velocity;
+		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
+		camForward.z = (camForward.z * cos(yaw) - camForward.y * sin(yaw));
+		camForward.y = (camForward.z * sin(yaw) + camForward.y * cos(yaw));
+		camera.target = camera.pos + camForward;
+	}
 }
 
 static inline float perlinFade(float t)
