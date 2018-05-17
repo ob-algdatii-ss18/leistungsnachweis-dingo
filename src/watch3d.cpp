@@ -124,10 +124,10 @@ Camera create_camera()
     Camera camera;
 
     // Camera init
-    camera.pos = glm::vec3(0.0f, 0.0f, 70.0f);
+    camera.pos = glm::vec3(0.0f, 40.0f, 100.0f);
     camera.target = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.up = glm::vec3(0.0f, 1.0f, 0.0f);
-	camera.velocity = 10.0f;
+	camera.velocity = 5.0f;
 
     return camera;
 }
@@ -147,7 +147,7 @@ glm::mat4 create_mvp(W3dContext context, Camera camera)
 		1.0f, 0.0f, 0.0f, 0.0f, 
 		0.0f, 1.0f, 0.0f, 0.0f, 
 		0.0f, 0.0f, 1.0f, 0.0f, 
-		-50.0f, -50.0f, 0.0f, 1.0f);
+		-50.0f, 0.0f, -50.0f, 1.0f);
     glm::mat4 mvp = Projection * View * Model;
 
     return mvp;

@@ -4,6 +4,7 @@
 
 #define Assert(Expression) SDL_assert(Expression)
 #define PI 3.14159265359f
+#define DEG_TO_RAD(degrees) (2.0f*(float)PI / 360.0f) * degrees
 
 typedef int8_t s8;
 typedef int16_t s16;

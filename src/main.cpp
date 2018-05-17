@@ -13,6 +13,10 @@ unsigned int keystates[512];
 
 void process_keys(Camera & camera)
 {
+	// TODO(Michael): move statics out
+	static float pitch = 0.0f;
+	static float yaw = -90.0f;
+
 	if (keystates[SDL_SCANCODE_A])
 	{
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
@@ -41,36 +45,25 @@ void process_keys(Camera & camera)
 	}
 	if (keystates[SDL_SCANCODE_RIGHT])
 	{
-		float yaw = ((float)PI / 360.0f) * camera.velocity;
-		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.x = (camForward.x * cos(yaw) - camForward.z * sin(yaw));
-		camForward.z = (camForward.x * sin(yaw) + camForward.z * cos(yaw));
-		camera.target = camera.pos + camForward;
+		yaw += (DEG_TO_RAD(.5f)) * camera.velocity;
 	}
 	if (keystates[SDL_SCANCODE_LEFT])
 	{
-		float yaw = -((float)PI / 360.0f) * camera.velocity;
-		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.x = (camForward.x * cos(yaw) - camForward.z * sin(yaw));
-		camForward.z = (camForward.x * sin(yaw) + camForward.z * cos(yaw));
-		camera.target = camera.pos + camForward;
+		yaw -= (DEG_TO_RAD(.5f)) * camera.velocity;
 	}
 	if (keystates[SDL_SCANCODE_UP])
 	{
-		float pitch = -((float)PI / 360.0f) * camera.velocity;
-		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.z = (camForward.z * cos(pitch) - camForward.y * sin(pitch));
-		camForward.y = (camForward.z * sin(pitch) + camForward.y * cos(pitch));
-		camera.target = camera.pos + camForward;
+		pitch += (DEG_TO_RAD(.5f)) * camera.velocity;
 	}
 	if (keystates[SDL_SCANCODE_DOWN])
 	{
-		float pitch = ((float)PI / 360.0f) * camera.velocity;
-		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.z = (camForward.z * cos(pitch) - camForward.y * sin(pitch));
-		camForward.y = (camForward.z * sin(pitch) + camForward.y * cos(pitch));
-		camera.target = camera.pos + camForward;
+		pitch -= (DEG_TO_RAD(.5f)) * camera.velocity;
 	}
+	glm::vec3 front;
+	front.x = cos(pitch) * cos(yaw);
+	front.y = sin(pitch);
+	front.z = cos(pitch) * sin(yaw);
+	camera.target = camera.pos + glm::normalize(front);
 }
 
 static inline float perlinFade(float t)
@@ -241,7 +234,6 @@ int main(int, char* [])
     // Running var for animation
     float z = 0.f;
     bool running = true;
-	bool first = true;
 
     u32 start = SDL_GetTicks();
     while (running)
@@ -277,25 +269,22 @@ int main(int, char* [])
 
         // Rendering
         // Generate Image Data. Each Component is a byte in RGBA order.
-		if (first)
+		size_t idx = 0;
+		for (int y = 0; y < height; ++y)
 		{
-			size_t idx = 0;
-			for (int y = 0; y < height; ++y)
+			for (int x = 0; x < width; ++x)
 			{
-				for (int x = 0; x < width; ++x)
-				{
-					float perlin = OctavePerlin(permutation, x, y, z, 6);
+				float perlin = OctavePerlin(permutation, x, y, z, 6);
 
-					// Get 0.0 - 1.0 value to 0 - 255
-					u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-					for (int c = 0; c < components; ++c)
-					{
-						image[idx++] = colorValue;
-					}
+				// Get 0.0 - 1.0 value to 0 - 255
+				u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
+				for (int c = 0; c < components; ++c)
+				{
+					image[idx++] = colorValue;
 				}
 			}
-			first = false;
 		}
+
 
         render(renderCtx, shader, image);
 
