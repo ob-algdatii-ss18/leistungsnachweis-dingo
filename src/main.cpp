@@ -236,7 +236,7 @@ int main(int, char* [])
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
-    create_grid(100, shader, renderCtx, image, MVP);
+    create_grid(100, shader, renderCtx, image, MVP); // TODO(Michael), grid size has to match value in v-shader.
 
     // Running var for animation
     float z = 0.f;

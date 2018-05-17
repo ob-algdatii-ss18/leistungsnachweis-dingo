@@ -33,8 +33,13 @@ struct Shader
 
 struct Quad
 {
-    GLfloat vertices[18] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-                            1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    GLfloat vertices[18] = {
+		0.0f, 0.0f, 0.0f, 
+		1.0f, 0.0f, 0.0f, 
+		1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f, 
+		0.0f, 0.0f, 1.0f, 
+		0.0f, 0.0f, 0.0f};
 };
 
 char* load_text(char const* filename);
