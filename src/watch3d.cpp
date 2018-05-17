@@ -293,6 +293,6 @@ void render(W3dContext context, Shader shader, std::vector<u8> image)
     // glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
     int verticesPerQuad = 6;
     // glPolygonMode(GL_FRONT, GL_LINE);
-    glDrawArrays(GL_TRIANGLES, 0, grid.size() * verticesPerQuad);
+    glDrawArrays(GL_LINES, 0, grid.size() * verticesPerQuad);
     SDL_GL_SwapWindow(context.sdlWnd);
 }

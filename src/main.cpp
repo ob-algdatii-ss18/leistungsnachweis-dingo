@@ -41,34 +41,34 @@ void process_keys(Camera & camera)
 	}
 	if (keystates[SDL_SCANCODE_RIGHT])
 	{
-		float pitch = ((float)PI / 360.0f) * camera.velocity;
+		float yaw = ((float)PI / 360.0f) * camera.velocity;
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.x = (camForward.x * cos(pitch) - camForward.z * sin(pitch));
-		camForward.z = (camForward.x * sin(pitch) + camForward.z * cos(pitch));
+		camForward.x = (camForward.x * cos(yaw) - camForward.z * sin(yaw));
+		camForward.z = (camForward.x * sin(yaw) + camForward.z * cos(yaw));
 		camera.target = camera.pos + camForward;
 	}
 	if (keystates[SDL_SCANCODE_LEFT])
 	{
-		float pitch = -((float)PI / 360.0f) * camera.velocity;
+		float yaw = -((float)PI / 360.0f) * camera.velocity;
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.x = (camForward.x * cos(pitch) - camForward.z * sin(pitch));
-		camForward.z = (camForward.x * sin(pitch) + camForward.z * cos(pitch));
+		camForward.x = (camForward.x * cos(yaw) - camForward.z * sin(yaw));
+		camForward.z = (camForward.x * sin(yaw) + camForward.z * cos(yaw));
 		camera.target = camera.pos + camForward;
 	}
 	if (keystates[SDL_SCANCODE_UP])
 	{
-		float yaw = -((float)PI / 360.0f) * camera.velocity;
+		float pitch = -((float)PI / 360.0f) * camera.velocity;
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.z = (camForward.z * cos(yaw) - camForward.y * sin(yaw));
-		camForward.y = (camForward.z * sin(yaw) + camForward.y * cos(yaw));
+		camForward.z = (camForward.z * cos(pitch) - camForward.y * sin(pitch));
+		camForward.y = (camForward.z * sin(pitch) + camForward.y * cos(pitch));
 		camera.target = camera.pos + camForward;
 	}
 	if (keystates[SDL_SCANCODE_DOWN])
 	{
-		float yaw = ((float)PI / 360.0f) * camera.velocity;
+		float pitch = ((float)PI / 360.0f) * camera.velocity;
 		glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
-		camForward.z = (camForward.z * cos(yaw) - camForward.y * sin(yaw));
-		camForward.y = (camForward.z * sin(yaw) + camForward.y * cos(yaw));
+		camForward.z = (camForward.z * cos(pitch) - camForward.y * sin(pitch));
+		camForward.y = (camForward.z * sin(pitch) + camForward.y * cos(pitch));
 		camera.target = camera.pos + camForward;
 	}
 }

@@ -10,8 +10,8 @@ void main ()
   vec4 colorValue = texture2D(tex, vec2(1.0f / 100.0f * vertex.x, 1.0f / 100.0f * vertex.z));
 
   // use z value as color
-  //frag_color = vec4(vec3(vertexY), 1.0f);
+  frag_color = vec4(vec3(vertexY), 1.0f);
 
   // use actual texture as color
-  frag_color = vec4(vec3(colorValue), 1.0f);
+  //frag_color = vec4(vec3(colorValue), 1.0f);
 }
