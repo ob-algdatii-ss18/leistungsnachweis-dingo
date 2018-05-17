@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #define Assert(Expression) SDL_assert(Expression)
+#define PI 3.14159265359f
 
 typedef int8_t s8;
 typedef int16_t s16;
