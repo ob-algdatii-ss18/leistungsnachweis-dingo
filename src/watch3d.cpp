@@ -1,6 +1,7 @@
 ﻿/*
 
-                              
+                              
+
   .--,-``-.
  /   /     '.      ,---,
 / ../        ;   .'  .' `\
@@ -123,9 +124,10 @@ Camera create_camera()
     Camera camera;
 
     // Camera init
-    camera.pos = glm::vec3(0, -150, 70);
-    camera.target = glm::vec3(0, 0, -1.0);
-    camera.up = glm::vec3(0, 1, 0);
+    camera.pos = glm::vec3(0.0f, 40.0f, 100.0f);
+    camera.target = glm::vec3(0.0f, 0.0f, 0.0f);
+    camera.up = glm::vec3(0.0f, 1.0f, 0.0f);
+	camera.velocity = 5.0f;
 
     return camera;
 }
@@ -136,15 +138,25 @@ glm::mat4 create_mvp(W3dContext context, Camera camera)
     glm::mat4 Projection = glm::perspective(
         glm::radians(45.0f), (float)context.width / (float)context.height, 0.1f, 1000.0f);
 
+	//glm::vec3 camForward = glm::normalize(camera.target - camera.pos);
     glm::mat4 View = glm::lookAt(camera.pos, camera.target, camera.up);
 
     // Model matrix : bottom left corner (tile 0,0) of grid is at 0,0 in world coordinates.
     // move -50 left and -50 down  so the tile 50, 50 is at 0, 0 in world coordinates.
-    glm::mat4 Model = glm::mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-                                0.0f, -50.0f, -50.0f, 0.0f, 1.0f);
+    glm::mat4 Model = glm::mat4(
+		1.0f, 0.0f, 0.0f, 0.0f, 
+		0.0f, 1.0f, 0.0f, 0.0f, 
+		0.0f, 0.0f, 1.0f, 0.0f, 
+		-50.0f, 0.0f, -50.0f, 1.0f);
     glm::mat4 mvp = Projection * View * Model;
 
     return mvp;
+}
+
+void update_mvp(glm::mat4 & mvp, Shader & shader)
+{
+	GLuint MatrixID = glGetUniformLocation(shader.program, "MVP");
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 }
 
 Shader create_shader_program()
@@ -195,23 +207,23 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<u8
         {
             // first triangle
             grid[row * gridSize + col].vertices[0] += col;
-            grid[row * gridSize + col].vertices[1] += row;
+            grid[row * gridSize + col].vertices[2] += row;
 
             grid[row * gridSize + col].vertices[3] += col;
-            grid[row * gridSize + col].vertices[4] += row;
+            grid[row * gridSize + col].vertices[5] += row;
 
             grid[row * gridSize + col].vertices[6] += col;
-            grid[row * gridSize + col].vertices[7] += row;
+            grid[row * gridSize + col].vertices[8] += row;
 
             // second triangle
             grid[row * gridSize + col].vertices[9] += col;
-            grid[row * gridSize + col].vertices[10] += row;
+            grid[row * gridSize + col].vertices[11] += row;
 
             grid[row * gridSize + col].vertices[12] += col;
-            grid[row * gridSize + col].vertices[13] += row;
+            grid[row * gridSize + col].vertices[14] += row;
 
             grid[row * gridSize + col].vertices[15] += col;
-            grid[row * gridSize + col].vertices[16] += row;
+            grid[row * gridSize + col].vertices[17] += row;
         }
     }
 
