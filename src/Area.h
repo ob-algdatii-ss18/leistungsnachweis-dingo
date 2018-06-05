@@ -13,14 +13,11 @@
 
 struct Area
 {
-    u8 x;
-    u8 y;
-
     float amplitude;
     float frequency;
     u8 octaves;
 
 	std::array<int, 512> permutation;
 
-	Area(u8 x, u8 y);
+	Area();
 };

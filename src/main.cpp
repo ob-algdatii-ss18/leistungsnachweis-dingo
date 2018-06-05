@@ -78,7 +78,7 @@ int main(int, char* [])
     std::vector<u8> image;
     image.resize(width * height * components);
 
-    Area area = {0, 0};
+    Area area;
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)

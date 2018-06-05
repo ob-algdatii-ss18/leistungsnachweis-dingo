@@ -12,7 +12,7 @@
 #include <algorithm>
 #include "TypeDef.h"
 
-Area::Area(u8 x, u8 y) : x(x), y(y)
+Area::Area()
 {
 	// https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
     std::random_device rd;   // only used once to initialise (seed) engine
