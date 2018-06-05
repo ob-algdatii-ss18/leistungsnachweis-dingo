@@ -11,11 +11,14 @@ Chunk::Chunk(u8 x, u8 y, Area a) : x(x), y(y)
 {
     int z = 0;
 
-    for (int y = 1; y <= CHUNK_SIZE; ++y)
+	// X and Y are our base coordinates.
+	// Our chunk goes from X,Y to X+16,Y+16 (CHUNK_SIZE)
+
+    for (int xx = 1; xx <= CHUNK_SIZE; ++xx)
     {
-        for (int x = 1; x <= CHUNK_SIZE; ++x)
+        for (int yy = 1; yy <= CHUNK_SIZE; ++yy)
         {
-            values[y * x] = octavePerlin(x, y, 0, a);
+            values[xx * yy] = octavePerlin(xx + x, yy + y, 0, a);
         }
     }
 }
