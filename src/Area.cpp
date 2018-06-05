@@ -24,6 +24,8 @@ Area::Area(u8 x, u8 y) : x(x), y(y)
     frequency = random_float(rng);
     octaves = random_int(rng);
 
+	// Perlin Random Initialize
+    // C++11 Randoms http://www.cplusplus.com/reference/random/
 	u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine generator(seed);
     // Fill with 0 to 255

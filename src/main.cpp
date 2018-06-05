@@ -8,6 +8,7 @@
 #include "TypeDef.h"
 
 #include "watch3d.h"
+#include "Area.h"
 
 unsigned int keystates[512];
 
@@ -172,18 +173,18 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
-float OctavePerlin(const std::array<int, 512>& permutation, float x, float y, float z, int octaves)
+float OctavePerlin(float x, float y, float z, Area area)
 {
     float total = 0.f;
-    float frequency = .4f;
-    float amplitude = .6f;
+    float frequency = area.frequency;
+    float amplitude = area.amplitude;
 
     // Used for normalizing result to 0.0 - 1.0
     float maxValue = 0.f;
 
-    for (int i = 0; i < octaves; i++)
+    for (int i = 0; i < area.octaves; i++)
     {
-        total += perlin3D(permutation, x * 0.01f * frequency, y * 0.01f * frequency, z) * amplitude;
+        total += perlin3D(area.permutation, x * 0.01f * frequency, y * 0.01f * frequency, z) * amplitude;
 
         maxValue += amplitude;
 
@@ -204,19 +205,7 @@ int main(int, char* [])
     std::vector<u8> image;
     image.resize(width * height * components);
 
-    // Perlin Random Initialize
-    // C++11 Randoms http://www.cplusplus.com/reference/random/
-    u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
-
-    std::array<int, 512> permutation{};
-    // Fill with 0 to 255
-    auto permEnd = permutation.begin() + 256;
-    std::iota(permutation.begin(), permEnd, 1);
-    // Shuffle
-    std::shuffle(permutation.begin(), permEnd, generator);
-    // Copy back to avoid overflows (we can query from [0,512[ to avoid doing modulos everywhere
-    std::copy(permutation.begin(), permEnd, permEnd);
+    Area area = {0, 0};
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -274,7 +263,7 @@ int main(int, char* [])
 		{
 			for (int x = 0; x < width; ++x)
 			{
-				float perlin = OctavePerlin(permutation, x, y, z, 6);
+				float perlin = OctavePerlin(x, y, z, area);
 
 				// Get 0.0 - 1.0 value to 0 - 255
 				u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
@@ -284,7 +273,6 @@ int main(int, char* [])
 				}
 			}
 		}
-
 
         render(renderCtx, shader, image);
 
