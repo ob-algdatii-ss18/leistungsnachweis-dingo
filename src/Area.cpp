@@ -9,6 +9,7 @@
 #include <chrono>
 #include <numeric>
 #include <random>
+#include <algorithm>
 #include "TypeDef.h"
 
 Area::Area(u8 x, u8 y) : x(x), y(y)
