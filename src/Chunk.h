@@ -27,7 +27,7 @@ struct Chunk
 
 	float values[CHUNK_SIZE * CHUNK_SIZE];
 
-	Chunk(u8 x, u8 y, Area areas[4], u8 type);
+	Chunk(u8 x, u8 y, Area areas[], u8 type);
 	void calculate();
 
 	private:
