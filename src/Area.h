@@ -13,8 +13,6 @@
 
 struct Area
 {
-    // "Area-Koordinaten" ?
-	// Sollten mit AREA_SIZE multipliziert werden für absolute Koordinaten
     u8 x;
     u8 y;
 

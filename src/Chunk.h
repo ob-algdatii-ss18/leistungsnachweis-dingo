@@ -13,18 +13,11 @@
 
 struct Chunk
 {
-    // "Chunk-Koordinaten" ?
-    // Sollten mit CUNK_SIZE multipliziert werden für absolute Koordinaten
+	// Beim Rendern als offset benutzen um die absoluten Koordinaten der Werte zu erhalten.
     u8 x;
     u8 y;
 
-	public:
-	// Je nach Anzahl der Areas bestimmt sich der Typ des Chunks
-    // 1 = Mittelpunkt
-    // 2 = Randpunkt
-    // 4 = Eckpunkt
-    Area areas[4];
+	float values[CHUNK_SIZE * CHUNK_SIZE];
 
-	u8 getAbsoluteX();
-    u8 getAbsoluteY();
+	Chunk(u8 x, u8 y, Area a);
 };
