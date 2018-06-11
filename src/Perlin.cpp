@@ -119,7 +119,7 @@ static float perlin3D(const std::array<int, 512>& p, float x, float y, float z)
     return (lerp(gy1, gy2, w) + 1) / 2;
 }
 
-float octavePerlin(float x, float y, float z, Area area)
+float octavePerlin(float x, float y, float z, const Area& area)
 {
     float total = 0.f;
     float frequency = area.frequency;

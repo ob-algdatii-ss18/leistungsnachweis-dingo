@@ -80,14 +80,14 @@ int main(int, char* [])
     image.resize(width * height * components);
 
     Area area;
-	Area areas[] = {area}; 
+	Area *areas[] = { &area };
 
     std::vector<Chunk> chunks;
     for (u8 x = 0; x < 4; ++x)
     {
         for (u8 y = 0; y < 4; ++y)
         {
-            Chunk chunk = {x, y, areas, 0};
+            Chunk chunk(x, y, areas, ChunkType::Inner);
             chunk.calculate();
             chunks.push_back(chunk);
         }

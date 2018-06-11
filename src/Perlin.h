@@ -10,4 +10,4 @@
 
 int perlin_fastfloor(float a);
 
-float octavePerlin(float x, float y, float z, Area area);
+float octavePerlin(float x, float y, float z, const Area& area);
