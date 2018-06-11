@@ -19,7 +19,7 @@ void process_keys(Camera& camera)
     // TODO(Michael): move statics out
     static float pitch = 0.0f;
     static float yaw = -90.0f;
-
+    
     if (keystates[SDL_SCANCODE_A])
     {
         glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
@@ -74,14 +74,14 @@ int main(int, char* [])
     const int width = 640;
     const int height = 480;
     const int components = 4;  // RGBA
-
+    
     // Create data buffer
     std::vector<u8> image;
-    image.resize(width * height * components);
-
+    image.resize(CHUNK_SIZE * CHUNK_SIZE * components);
+    
     Area area;
 	Area *areas[] = { &area };
-
+    
     std::vector<Chunk> chunks;
     for (u8 x = 0; x < 4; ++x)
     {
@@ -92,16 +92,16 @@ int main(int, char* [])
             chunks.push_back(chunk);
         }
     }
-
+    
 	// Generate Image Data. Each Component is a byte in RGBA order.
     float z = 0.f;
     size_t idx = 0;
-    for (int y = 0; y < height; ++y)
+    for (int y = 0; y < CHUNK_SIZE; ++y)
     {
-        for (int x = 0; x < width; ++x)
+        for (int x = 0; x < CHUNK_SIZE; ++x)
         {
             float perlin = octavePerlin(x, y, z, area);
-
+            
             // Get 0.0 - 1.0 value to 0 - 255
             u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
             for (int c = 0; c < components; ++c)
@@ -113,22 +113,22 @@ int main(int, char* [])
     z += 0.05f;
     // Wrap the value to not run into floating point issues
     z = fmod(z, 256.f);
-
+    
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-
+    
     W3dContext renderCtx = initGL(width, height);
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
     create_grid(100, shader, renderCtx, chunks, MVP);  // TODO(Michael), grid size has to match value in v-shader.
-
+    
     bool running = true;
-
+    
     u32 start = SDL_GetTicks();
     while (running)
     {
@@ -140,7 +140,7 @@ int main(int, char* [])
                 running = false;
             if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                 running = false;
-
+            
             if (event.type == SDL_KEYDOWN)
             {
                 keystates[event.key.keysym.scancode] = 1;
@@ -151,21 +151,21 @@ int main(int, char* [])
             }
         }
         process_keys(camera);
-
+        
         MVP = create_mvp(renderCtx, camera);
         update_mvp(MVP, shader);
-
+        
         // Calculate Delta-Time to see runtime
         u32 current = SDL_GetTicks();
         u32 deltams = current - start;
         start = current;
         printf("Delta Time: %dms\n", deltams);
-
+        
         // Rendering
-
+        
         render(renderCtx, shader);
-
+        
     }
-
+    
     return 0;
 }

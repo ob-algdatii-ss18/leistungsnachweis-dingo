@@ -127,7 +127,7 @@ Camera create_camera()
     camera.pos = glm::vec3(0.0f, 40.0f, 100.0f);
     camera.target = glm::vec3(0.0f, 0.0f, 0.0f);
     camera.up = glm::vec3(0.0f, 1.0f, 0.0f);
-	camera.velocity = 5.0f;
+	camera.velocity = 2.5f;
     
     return camera;
 }
@@ -200,37 +200,38 @@ Shader create_shader_program()
 void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Chunk>& chunks,
                  glm::mat4 mvp)
 {
-    grid = std::vector<Quad>(CHUNK_SIZE * CHUNK_SIZE); // 4 quads per perlin-value
-    for (int row = 0; row < CHUNK_SIZE; ++row)
+    int quadCount = CHUNK_SIZE - 1;
+    grid = std::vector<Quad>(quadCount * quadCount); // 4 quads per perlin-value
+    for (int row = 0; row < quadCount; ++row)
     {
-        for (int col = 0; col < CHUNK_SIZE; ++col)
+        for (int col = 0; col < quadCount; ++col)
         {
             // first triangle
-            grid[row * CHUNK_SIZE + col].vertices[0] += col;
-            //grid[row * CHUNK_SIZE + col].vertices[1] += chunks[0].values[row * CHUNK_SIZE + col];
-            grid[row * CHUNK_SIZE + col].vertices[2] += row;
+            grid[row * quadCount + col].vertices[0] += col;
+            grid[row * quadCount + col].vertices[1] += chunks[0].values[row * quadCount + col];
+            grid[row * quadCount + col].vertices[2] += row;
             
-            grid[row * CHUNK_SIZE + col].vertices[3] += col;
-            //grid[row * CHUNK_SIZE + col].vertices[4] += chunks[0].values[row * CHUNK_SIZE + col];
-            grid[row * CHUNK_SIZE + col].vertices[5] += row;
+            grid[row * quadCount + col].vertices[3] += col;
+            grid[row * quadCount + col].vertices[4] += chunks[0].values[(row + 1) * quadCount + col];
+            grid[row * quadCount + col].vertices[5] += row;
             
-            grid[row * CHUNK_SIZE + col].vertices[6] += col;
-            //grid[row * CHUNK_SIZE + col].vertices[7] += chunks[0].values[row * CHUNK_SIZE + col];
-            grid[row * CHUNK_SIZE + col].vertices[8] += row;
+            grid[row * quadCount + col].vertices[6] += col;
+            grid[row * quadCount + col].vertices[7] += chunks[0].values[(row + 1) * quadCount + (col + 1)];
+            grid[row * quadCount + col].vertices[8] += row;
             
 			
             // second triangle
-            grid[row * CHUNK_SIZE + col].vertices[9] += col;
-            //grid[row * CHUNK_SIZE + col].vertices[10] += chunks[0].values[row * CHUNK_SIZE + col];
-            grid[row * CHUNK_SIZE + col].vertices[11] += row;
+            grid[row * quadCount + col].vertices[9] += col;
+            grid[row * quadCount + col].vertices[10] += chunks[0].values[(row + 1) * quadCount + (col + 1)];
+            grid[row * quadCount + col].vertices[11] += row;
             
-            grid[row * CHUNK_SIZE + col].vertices[12] += col;
-            //grid[row * CHUNK_SIZE + col].vertices[13] += chunks[0].values[row * CHUNK_SIZE + col];
-            grid[row * CHUNK_SIZE + col].vertices[14] += row;
+            grid[row * quadCount + col].vertices[12] += col;
+            grid[row * quadCount + col].vertices[13] += chunks[0].values[row * quadCount + (col + 1)];
+            grid[row * quadCount + col].vertices[14] += row;
             
-            grid[row * CHUNK_SIZE + col].vertices[15] += col;
-            //grid[row * CHUNK_SIZE + col].vertices[16] += chunks[0].values[row * CHUNK_SIZE + col];
-            grid[row * CHUNK_SIZE + col].vertices[17] += row;
+            grid[row * quadCount + col].vertices[15] += col;
+            grid[row * quadCount + col].vertices[16] += chunks[0].values[row * quadCount + col];
+            grid[row * quadCount + col].vertices[17] += row;
         }
     }
     

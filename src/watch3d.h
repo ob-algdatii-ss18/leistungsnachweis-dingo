@@ -46,12 +46,14 @@ struct Triangle // CCW (OpenGL's default)
 
 struct Quad  // this is CCW! FUCK AUTOFORMAT VS!!!! I AM INTENTIONALLY FORMATTING THE DATA THIS WAY. FUCK YOU VS!
 {
-    GLfloat vertices[18] = {0.0f, 0.0f, 0.0f,
-		                    1.0f, 0.0f, 0.0f, 
-		                    1.0f, 0.0f, 1.0f,
-                            1.0f, 0.0f, 1.0f, 
-		                    0.0f, 0.0f, 1.0f, 
-		                    0.0f, 0.0f, 0.0f};
+    GLfloat vertices[18] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 
+        1.0f, 0.0f, 1.0f, 
+        1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f, 
+        0.0f, 0.0f, 0.0f
+    };
 };
 
 char* load_text(char const* filename);
