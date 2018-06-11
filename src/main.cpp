@@ -93,6 +93,27 @@ int main(int, char* [])
         }
     }
 
+	// Generate Image Data. Each Component is a byte in RGBA order.
+    float z = 0.f;
+    size_t idx = 0;
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            float perlin = octavePerlin(x, y, z, area);
+
+            // Get 0.0 - 1.0 value to 0 - 255
+            u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
+            for (int c = 0; c < components; ++c)
+            {
+                image[idx++] = colorValue;
+            }
+        }
+    }
+    z += 0.05f;
+    // Wrap the value to not run into floating point issues
+    z = fmod(z, 256.f);
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -104,11 +125,8 @@ int main(int, char* [])
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
-    create_grid(100, shader, renderCtx, image,
-                MVP);  // TODO(Michael), grid size has to match value in v-shader.
+    create_grid(100, shader, renderCtx, chunks, MVP);  // TODO(Michael), grid size has to match value in v-shader.
 
-    // Running var for animation
-    float z = 0.f;
     bool running = true;
 
     u32 start = SDL_GetTicks();
@@ -144,28 +162,9 @@ int main(int, char* [])
         printf("Delta Time: %dms\n", deltams);
 
         // Rendering
-        // Generate Image Data. Each Component is a byte in RGBA order.
-        size_t idx = 0;
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                float perlin = octavePerlin(x, y, z, area);
 
-                // Get 0.0 - 1.0 value to 0 - 255
-                u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-                for (int c = 0; c < components; ++c)
-                {
-                    image[idx++] = colorValue;
-                }
-            }
-        }
+        render(renderCtx, shader);
 
-        render(renderCtx, shader, image);
-
-        z += 0.05f;
-        // Wrap the value to not run into floating point issues
-        z = fmod(z, 256.f);
     }
 
     return 0;
