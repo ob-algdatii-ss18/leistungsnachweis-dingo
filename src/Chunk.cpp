@@ -42,11 +42,12 @@ void Chunk::calculate() // Hier könnte man evtl. Z übergeben, falls man später d
 
 void Chunk::calculate_inner()
 {
-	for (int xx = 0; xx < CHUNK_SIZE; ++xx)
+	for (int yy = 0; yy < CHUNK_SIZE; ++yy)
 	{
-		for (int yy = 0; yy < CHUNK_SIZE; ++yy)
+		const int row_offset = yy * CHUNK_SIZE;
+		for (int xx = 0; xx < CHUNK_SIZE; ++xx)
 		{
-			values[xx * CHUNK_SIZE + yy] = octavePerlin(xx + x, yy + y, Z_VALUE, *areas[0]);
+			values[row_offset + xx] = octavePerlin(xx + x, yy + y, Z_VALUE, *areas[0]);
 		}
 	}
 }
@@ -56,14 +57,15 @@ void Chunk::calculate_vertical()
 	const Area& upper_area = *areas[0];
 	const Area& lower_area = *areas[1];
 
-	for (int xx = 0; xx < CHUNK_SIZE; ++xx)
+	for (int yy = 0; yy < CHUNK_SIZE; ++yy)
 	{
-		for (int yy = 0; yy < CHUNK_SIZE; ++yy)
+		const int row_offset = yy * CHUNK_SIZE;
+		for (int xx = 0; xx < CHUNK_SIZE; ++xx)
 		{
 			float upper = octavePerlin(xx + x, yy + y, Z_VALUE, upper_area);
 			float lower = octavePerlin(xx + x, yy + y, Z_VALUE, lower_area);
 
-			values[xx * CHUNK_SIZE + yy] = 0; // interpolieren ziwschen upper & lower in Abhängigkeit von yy
+			values[row_offset + xx] = 0; // interpolieren ziwschen upper & lower in Abhängigkeit von yy
 		}
 	}
 }
@@ -73,14 +75,15 @@ void Chunk::calculate_horizontal()
 	const Area& left_area = *areas[0];
 	const Area& right_area = *areas[1];
 
-	for (int xx = 0; xx < CHUNK_SIZE; ++xx)
+	for (int yy = 0; yy < CHUNK_SIZE; ++yy)
 	{
-		for (int yy = 0; yy < CHUNK_SIZE; ++yy)
+		const int row_offset = yy * CHUNK_SIZE;
+		for (int xx = 0; xx < CHUNK_SIZE; ++xx)
 		{
 			float left = octavePerlin(xx + x, yy + y, Z_VALUE, left_area);
 			float right = octavePerlin(xx + x, yy + y, Z_VALUE, right_area);
 
-			values[xx * CHUNK_SIZE + yy] = 0; // TODO interpolieren zwischen left & right in Abhängigkeit von xx
+			values[row_offset + xx] = 0; // TODO interpolieren zwischen left & right in Abhängigkeit von xx
 		}
 	}
 }
@@ -95,16 +98,17 @@ void Chunk::calculate_corner()
 	// X and Y are our base coordinates.
 	// Our chunk goes from X,Y to X+16,Y+16 (CHUNK_SIZE)
 
-	for (int xx = 0; xx < CHUNK_SIZE; ++xx)
+	for (int yy = 0; yy < CHUNK_SIZE; ++yy)
 	{
-		for (int yy = 0; yy < CHUNK_SIZE; ++yy)
+		const int row_offset = yy * CHUNK_SIZE;
+		for (int xx = 0; xx < CHUNK_SIZE; ++xx)
 		{
 			float upper_left = octavePerlin(xx + x, yy + y, Z_VALUE, upper_left_area);
 			float upper_right = octavePerlin(xx + x, yy + y, Z_VALUE, upper_right_area);
 			float lower_right = octavePerlin(xx + x, yy + y, Z_VALUE, lower_right_area);
 			float lower_left = octavePerlin(xx + x, yy + y, Z_VALUE, lower_left_area);
 
-			values[xx * CHUNK_SIZE + yy] = 0;  // TODO zwischen a b c d interpolieren
+			values[row_offset + xx] = 0;  // TODO zwischen a b c d interpolieren
 		}
 	}
 }
