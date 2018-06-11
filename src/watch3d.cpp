@@ -204,8 +204,10 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Ch
     grid = std::vector<Quad>(quadCount * quadCount); // 4 quads per perlin-value
     for (int row = 0; row < quadCount; ++row)
     {
+        float height = 0.0f;
         for (int col = 0; col < quadCount; ++col)
         {
+            
             // first triangle
             grid[row * quadCount + col].vertices[0] += col;
             grid[row * quadCount + col].vertices[1] += chunks[0].values[row * quadCount + col];
@@ -232,6 +234,8 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Ch
             grid[row * quadCount + col].vertices[15] += col;
             grid[row * quadCount + col].vertices[16] += chunks[0].values[row * quadCount + col];
             grid[row * quadCount + col].vertices[17] += row;
+            
+            height += 1;
         }
     }
     
