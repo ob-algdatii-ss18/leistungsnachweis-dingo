@@ -12,22 +12,21 @@
 #include <algorithm>
 #include "TypeDef.h"
 
+// https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
+static std::random_device rd;   // only used once to initialise (seed) engine
+static std::mt19937 rng(rd());  // random-number engine used (Mersenne-Twister in this case)
+static std::uniform_int_distribution<int> random_int(3, 7);
+static std::uniform_real_distribution<float> random_float(0.1f, 1.0f);
+
+static u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
+static std::default_random_engine generator(seed);
+
 Area::Area()
 {
-	// https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
-    std::random_device rd;   // only used once to initialise (seed) engine
-    std::mt19937 rng(rd());  // random-number engine used (Mersenne-Twister in this case)
-    std::uniform_int_distribution<int> random_int(3, 7);
-    std::uniform_real_distribution<float> random_float(0.1f, 1.0f);
-
     amplitude = random_float(rng);
     frequency = random_float(rng);
     octaves = random_int(rng);
 
-	// Perlin Random Initialize
-    // C++11 Randoms http://www.cplusplus.com/reference/random/
-	u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
-    std::default_random_engine generator(seed);
     // Fill with 0 to 255
     auto permEnd = permutation.begin() + 256;
     std::iota(permutation.begin(), permEnd, 1);
