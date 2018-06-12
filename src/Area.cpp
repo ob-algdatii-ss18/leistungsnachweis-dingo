@@ -16,7 +16,7 @@
 static std::random_device rd;   // only used once to initialise (seed) engine
 static std::mt19937 rng(rd());  // random-number engine used (Mersenne-Twister in this case)
 static std::uniform_int_distribution<int> random_int(3, 7);
-static std::uniform_real_distribution<float> random_float(0.1f, 10.0f);
+static std::uniform_real_distribution<float> random_float(0.1f, 1.0f);
 
 static u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
 static std::default_random_engine generator(seed);

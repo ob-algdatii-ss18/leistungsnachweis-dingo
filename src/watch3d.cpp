@@ -210,29 +210,29 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Ch
             
             // first triangle
             grid[row * quadCount + col].vertices[0] += col;
-            grid[row * quadCount + col].vertices[1] += chunks[0].values[row * quadCount + col];
+            grid[row * quadCount + col].vertices[1] += chunks[0].values[row * CHUNK_SIZE + col];
             grid[row * quadCount + col].vertices[2] += row;
             
             grid[row * quadCount + col].vertices[3] += col;
-            grid[row * quadCount + col].vertices[4] += chunks[0].values[(row + 1) * quadCount + col];
+            grid[row * quadCount + col].vertices[4] += chunks[0].values[(row + 1) * CHUNK_SIZE+ col];
             grid[row * quadCount + col].vertices[5] += row;
             
             grid[row * quadCount + col].vertices[6] += col;
-            grid[row * quadCount + col].vertices[7] += chunks[0].values[(row + 1) * quadCount + (col + 1)];
+            grid[row * quadCount + col].vertices[7] += chunks[0].values[(row + 1) * CHUNK_SIZE + (col + 1)];
             grid[row * quadCount + col].vertices[8] += row;
             
 			
             // second triangle
             grid[row * quadCount + col].vertices[9] += col;
-            grid[row * quadCount + col].vertices[10] += chunks[0].values[(row + 1) * quadCount + (col + 1)];
+            grid[row * quadCount + col].vertices[10] += chunks[0].values[(row + 1) * CHUNK_SIZE + (col + 1)];
             grid[row * quadCount + col].vertices[11] += row;
             
             grid[row * quadCount + col].vertices[12] += col;
-            grid[row * quadCount + col].vertices[13] += chunks[0].values[row * quadCount + (col + 1)];
+            grid[row * quadCount + col].vertices[13] += chunks[0].values[row * CHUNK_SIZE + (col + 1)];
             grid[row * quadCount + col].vertices[14] += row;
             
             grid[row * quadCount + col].vertices[15] += col;
-            grid[row * quadCount + col].vertices[16] += chunks[0].values[row * quadCount + col];
+            grid[row * quadCount + col].vertices[16] += chunks[0].values[row * CHUNK_SIZE + col];
             grid[row * quadCount + col].vertices[17] += row;
             
             height += 1;
