@@ -207,38 +207,38 @@ void create_chunk(Shader shader, W3dContext context, Chunk& chunk,
                   int x, int y)
 {
     int quadCount = CHUNK_SIZE - 1;
-    grid = std::vector<Quad>(quadCount * quadCount); // 4 quads per perlin-value
+    grid = std::vector<Quad>(quadCount * quadCount);
+    int offsetX = chunk.x;
+    int offsetY = chunk.y;
     for (int row = 0; row < quadCount; ++row)
     {
         for (int col = 0; col < quadCount; ++col)
         {
-            
             // first triangle
-            grid[row * quadCount + col].vertices[0] += col + chunk.x;
+            grid[row * quadCount + col].vertices[0] += col + offsetX;
             grid[row * quadCount + col].vertices[1] += chunk.values[row * CHUNK_SIZE + col];
-            grid[row * quadCount + col].vertices[2] += row + chunk.y;
+            grid[row * quadCount + col].vertices[2] += row + offsetY;
             
-            grid[row * quadCount + col].vertices[3] += col + chunk.x;
+            grid[row * quadCount + col].vertices[3] += col + offsetX;
             grid[row * quadCount + col].vertices[4] += chunk.values[(row + 1) * CHUNK_SIZE+ col];
-            grid[row * quadCount + col].vertices[5] += row + chunk.y;
+            grid[row * quadCount + col].vertices[5] += row + offsetY;
             
-            grid[row * quadCount + col].vertices[6] += col + chunk.x;
+            grid[row * quadCount + col].vertices[6] += col + offsetX;
             grid[row * quadCount + col].vertices[7] += chunk.values[(row + 1) * CHUNK_SIZE + (col + 1)];
-            grid[row * quadCount + col].vertices[8] += row + chunk.y;
+            grid[row * quadCount + col].vertices[8] += row + offsetY;
             
-			
             // second triangle
-            grid[row * quadCount + col].vertices[9] += col + chunk.x;
+            grid[row * quadCount + col].vertices[9] += col + offsetX;
             grid[row * quadCount + col].vertices[10] += chunk.values[(row + 1) * CHUNK_SIZE + (col + 1)];
-            grid[row * quadCount + col].vertices[11] += row + chunk.y;
+            grid[row * quadCount + col].vertices[11] += row + offsetY;
             
-            grid[row * quadCount + col].vertices[12] += col + chunk.x;
+            grid[row * quadCount + col].vertices[12] += col + offsetX;
             grid[row * quadCount + col].vertices[13] += chunk.values[row * CHUNK_SIZE + (col + 1)];
-            grid[row * quadCount + col].vertices[14] += row + chunk.y;
+            grid[row * quadCount + col].vertices[14] += row + offsetY;
             
-            grid[row * quadCount + col].vertices[15] += col + chunk.x;
+            grid[row * quadCount + col].vertices[15] += col + offsetX;
             grid[row * quadCount + col].vertices[16] += chunk.values[row * CHUNK_SIZE + col];
-            grid[row * quadCount + col].vertices[17] += row + chunk.y;
+            grid[row * quadCount + col].vertices[17] += row + offsetY;
         }
     }
     push_chunk(grid, x, y, 4); // TODO(Michael): magic value 4 for stride
