@@ -9,7 +9,7 @@
 #include "TypeDef.h"
 #include "Area.h"
 
-#define CHUNK_SIZE 256
+#define CHUNK_SIZE 64
 
 enum ChunkType : u8
 {
