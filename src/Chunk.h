@@ -37,7 +37,8 @@ struct Chunk
     
 	Chunk(u8 x, u8 y, Area** areas, ChunkType type);
 	void calculate();
-    
+	void drawToPGM();
+
     private:
     
 	void calculate_inner();

@@ -92,27 +92,29 @@ int main(int, char* [])
             chunks.push_back(chunk);
         }
     }
+
+	chunks[0].drawToPGM();
     
-	// Generate Image Data. Each Component is a byte in RGBA order.
-    float z = 0.f;
-    size_t idx = 0;
-    for (int y = 0; y < CHUNK_SIZE; ++y)
-    {
-        for (int x = 0; x < CHUNK_SIZE; ++x)
-        {
-            float perlin = octavePerlin(x, y, z, area);
-            
-            // Get 0.0 - 1.0 value to 0 - 255
-            u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-            for (int c = 0; c < components; ++c)
-            {
-                image[idx++] = colorValue;
-            }
-        }
-    }
-    z += 0.05f;
-    // Wrap the value to not run into floating point issues
-    z = fmod(z, 256.f);
+	// Generate Image Data. Each Component is a byte in RGBA order. (obsolete, keep for reference)
+    //float z = 0.f;
+    //size_t idx = 0;
+    //for (int y = 0; y < CHUNK_SIZE; ++y)
+    //{
+    //    for (int x = 0; x < CHUNK_SIZE; ++x)
+    //    {
+    //        float perlin = octavePerlin(x, y, z, area);
+    //        
+    //        // Get 0.0 - 1.0 value to 0 - 255
+    //        u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
+    //        for (int c = 0; c < components; ++c)
+    //        {
+    //            image[idx++] = colorValue;
+    //        }
+    //    }
+    //}
+    //z += 0.05f;
+    //// Wrap the value to not run into floating point issues
+    //z = fmod(z, 256.f);
     
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)

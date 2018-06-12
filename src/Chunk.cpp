@@ -4,6 +4,8 @@
 *  @date    05 June 2018
 */
 
+
+#include <fstream>
 #include "Chunk.h"
 #include "Perlin.h"
 
@@ -38,6 +40,27 @@ void Chunk::calculate() // Hier könnte man evtl. Z übergeben, falls man später d
 	case ChunkType::Corner: calculate_corner(); break; 
 	default: throw std::invalid_argument("Illegal chunk type - must be in between 0 and 3"); break;
 	}
+}
+
+void Chunk::drawToPGM()
+{
+	std::ofstream out("chunk.pgm");
+	if (!out)
+		return;
+	out << "P2" << std::endl;
+	out << CHUNK_SIZE << " " << CHUNK_SIZE << std::endl;
+	out << "255" << std::endl;
+	for (int row = 0; row < CHUNK_SIZE; ++row)
+	{
+		for (int col = 0; col < CHUNK_SIZE; ++col)
+		{
+			int value = values[row * CHUNK_SIZE + col] * 255;
+			out << value << " ";
+		}
+		out << std::endl;
+	}
+
+	out.close();
 }
 
 void Chunk::calculate_inner()
