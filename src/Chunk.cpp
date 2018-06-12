@@ -42,9 +42,9 @@ void Chunk::calculate() // Hier könnte man evtl. Z übergeben, falls man später d
 	}
 }
 
-void Chunk::drawToPGM()
+void Chunk::renderToPGM(std::string& filename)
 {
-	std::ofstream out("chunk.pgm");
+	std::ofstream out(filename);
 	if (!out)
 		return;
 	out << "P2" << std::endl;

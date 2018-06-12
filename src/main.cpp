@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <string>
 #include <functional>
 #include <numeric>
 #include <random>
 #include "TypeDef.h"
-
 #include "Area.h"
 #include "Chunk.h"
 #include "Perlin.h"
@@ -80,20 +80,23 @@ int main(int, char* [])
     image.resize(CHUNK_SIZE * CHUNK_SIZE * components);
     
     Area area;
+	area.amplitude = 1.0f;
+	area.frequency = 1.0f;
 	Area *areas[] = { &area };
     
     std::vector<Chunk> chunks;
-    for (u8 x = 0; x < 4; ++x)
+    for (u8 row = 0; row < 4; ++row)
     {
-        for (u8 y = 0; y < 4; ++y)
+        for (u8 col = 0; col < 4; ++col)
         {
-            Chunk chunk(x, y, areas, ChunkType::Inner);
+            Chunk chunk(col, row, areas, ChunkType::Inner);
             chunk.calculate();
             chunks.push_back(chunk);
+			//chunk.renderToPGM("chunk" + std::to_string(col) + std::to_string(row) + ".pgm"); // debug
         }
     }
 
-	chunks[0].drawToPGM();
+	//renderToPGM(chunks, "chunks.pgm"); // debug
     
 	// Generate Image Data. Each Component is a byte in RGBA order. (obsolete, keep for reference)
     //float z = 0.f;

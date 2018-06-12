@@ -22,8 +22,8 @@ enum ChunkType : u8
 struct Chunk
 {
 	// Beim Rendern als offset benutzen um die absoluten Koordinaten der Werte zu erhalten.
-	u8 x;
-	u8 y;
+	u32 x;
+	u32 y;
     
 	Area* areas[4];
     
@@ -37,7 +37,7 @@ struct Chunk
     
 	Chunk(u8 x, u8 y, Area** areas, ChunkType type);
 	void calculate();
-	void drawToPGM();
+	void renderToPGM(std::string& filename);
 
     private:
     

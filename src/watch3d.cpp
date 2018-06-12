@@ -42,6 +42,7 @@ the problem but the windows events won't get handled  properly).
 */
 
 #include "watch3d.h"
+#include <fstream>
 
 static Quad quad;
 static std::vector<Quad> grid;
@@ -308,4 +309,29 @@ void render(W3dContext context, Shader shader)
     //glPolygonMode(GL_FRONT, GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, grid.size() * (verticesPerQuad));
     SDL_GL_SwapWindow(context.sdlWnd);
+}
+
+void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
+{
+	int stride = 4;
+	std::ofstream out(filename);
+	if (!out)
+		return;
+	out << "P2" << std::endl;
+	out << CHUNK_SIZE << " " << CHUNK_SIZE * stride << std::endl;
+	out << "255" << std::endl;
+	for (int i = 0; i < stride; ++i)
+	{
+		for (int row = 0; row < CHUNK_SIZE; ++row)
+		{
+			for (int col = 0; col < CHUNK_SIZE; ++col)
+			{
+				int value = chunks[i * stride].values[row * CHUNK_SIZE + col] * 255;
+				out << value << " ";
+			}
+			out << std::endl;
+		}
+	}
+
+	out.close();
 }

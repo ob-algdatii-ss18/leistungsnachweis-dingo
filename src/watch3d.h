@@ -67,4 +67,7 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Ch
                  glm::mat4 mvp);
 void render(W3dContext context, Shader shader);
 
+// helper
+void renderToPGM(std::vector<Chunk>&, std::string const & filename);
+
 #endif
