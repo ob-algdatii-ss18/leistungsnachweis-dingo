@@ -96,7 +96,7 @@ int main(int, char* [])
         }
     }
 
-	//renderToPGM(chunks, "chunks.pgm"); // debug
+	renderToPGM(chunks, "chunks.pgm"); // debug
     
 	// Generate Image Data. Each Component is a byte in RGBA order. (obsolete, keep for reference)
     //float z = 0.f;

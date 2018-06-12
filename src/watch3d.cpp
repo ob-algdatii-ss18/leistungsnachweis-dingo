@@ -317,9 +317,9 @@ void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 	std::ofstream out(filename);
 	if (!out)
 		return;
-	out << "P2" << std::endl;
-	out << CHUNK_SIZE << " " << CHUNK_SIZE * stride << std::endl;
-	out << "255" << std::endl;
+	out << "P2" << "\n";
+	out << CHUNK_SIZE << " " << CHUNK_SIZE * stride << "\n";
+	out << "255" << "\n";
 	for (int i = 0; i < stride; ++i)
 	{
 		for (int row = 0; row < CHUNK_SIZE; ++row)
@@ -329,7 +329,7 @@ void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 				int value = chunks[i * stride].values[row * CHUNK_SIZE + col] * 255;
 				out << value << " ";
 			}
-			out << std::endl;
+			out << "\n";
 		}
 	}
 
