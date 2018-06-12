@@ -48,7 +48,7 @@ static Quad quad;
 static std::vector<Quad> grid;
 static GLuint vao;
 static GLuint tex;
-static GlChunkData chunkData;
+static GlChunkData gChunkData;
 
 char* load_text(char const* filename)
 {
@@ -199,8 +199,8 @@ Shader create_shader_program()
     return {shaderProgram};
 }
 
-void create_grid(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
-                 glm::mat4 mvp)
+void create_chunk(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
+                  glm::mat4 mvp)
 {
     int quadCount = CHUNK_SIZE - 1;
     grid = std::vector<Quad>(quadCount * quadCount); // 4 quads per perlin-value
@@ -241,30 +241,7 @@ void create_grid(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
         }
     }
     
-    GLfloat colors[] = {0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f};
-    
-    vao = 0;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    
-    GLuint vbo = 0;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(grid[0]) * grid.size(), &grid[0], GL_STATIC_DRAW);
-    // first param is index
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-    // enable, affects only the previously bound VBOs!
-    glEnableVertexAttribArray(0);
-    
-    GLuint color_vbo = 0;
-    glGenBuffers(1, &color_vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, color_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-    // first param is index
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-    // enable, affects only the previously bound VBOs!
-    glEnableVertexAttribArray(1);
+    push_gpu(grid);
     
     glUseProgram(shader.program);
     // texture
@@ -293,6 +270,25 @@ void create_grid(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
     glViewport(0, 0, context.width, context.height);
 }
 
+void push_gpu(std::vector<Quad>& chunk)
+{
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    
+    GLuint vbo = 0;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(chunk[0]) * chunk.size(), &chunk[0], GL_STATIC_DRAW);
+    // first param is index
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    // enable, affects only the previously bound VBOs!
+    glEnableVertexAttribArray(0);
+    gChunkData.VAOs[0] = vao;
+    gChunkData.VBOs[0] = vbo;
+    gChunkData.chunks.push_back(chunk);
+}
+
 void render(W3dContext context, Shader shader)
 {
     glUseProgram(shader.program);
@@ -303,15 +299,15 @@ void render(W3dContext context, Shader shader)
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    glBindVertexArray(vao);
+    glBindVertexArray(gChunkData.VAOs[0]);
     // glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
     int verticesPerQuad = 6;
-    int verticesPerTriangle = 3;
     //glPolygonMode(GL_FRONT, GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, grid.size() * (verticesPerQuad));
     SDL_GL_SwapWindow(context.sdlWnd);
 }
 
+// renders first column only
 void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 {
 	int stride = 4;
