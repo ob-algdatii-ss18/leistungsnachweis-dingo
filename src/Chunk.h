@@ -38,7 +38,7 @@ struct Chunk
 	Chunk(u8 x, u8 y, Area** areas, ChunkType type);
 	void calculate();
 	void renderToPGM(std::string& filename);
-
+    
     private:
     
 	void calculate_inner();

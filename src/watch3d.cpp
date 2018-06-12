@@ -210,38 +210,35 @@ void create_chunk(Shader shader, W3dContext context, Chunk& chunk,
     grid = std::vector<Quad>(quadCount * quadCount); // 4 quads per perlin-value
     for (int row = 0; row < quadCount; ++row)
     {
-        float height = 0.0f;
         for (int col = 0; col < quadCount; ++col)
         {
             
             // first triangle
-            grid[row * quadCount + col].vertices[0] += col;
+            grid[row * quadCount + col].vertices[0] += col + chunk.x;
             grid[row * quadCount + col].vertices[1] += chunk.values[row * CHUNK_SIZE + col];
-            grid[row * quadCount + col].vertices[2] += row;
+            grid[row * quadCount + col].vertices[2] += row + chunk.y;
             
-            grid[row * quadCount + col].vertices[3] += col;
+            grid[row * quadCount + col].vertices[3] += col + chunk.x;
             grid[row * quadCount + col].vertices[4] += chunk.values[(row + 1) * CHUNK_SIZE+ col];
-            grid[row * quadCount + col].vertices[5] += row;
+            grid[row * quadCount + col].vertices[5] += row + chunk.y;
             
-            grid[row * quadCount + col].vertices[6] += col;
+            grid[row * quadCount + col].vertices[6] += col + chunk.x;
             grid[row * quadCount + col].vertices[7] += chunk.values[(row + 1) * CHUNK_SIZE + (col + 1)];
-            grid[row * quadCount + col].vertices[8] += row;
+            grid[row * quadCount + col].vertices[8] += row + chunk.y;
             
 			
             // second triangle
-            grid[row * quadCount + col].vertices[9] += col;
+            grid[row * quadCount + col].vertices[9] += col + chunk.x;
             grid[row * quadCount + col].vertices[10] += chunk.values[(row + 1) * CHUNK_SIZE + (col + 1)];
-            grid[row * quadCount + col].vertices[11] += row;
+            grid[row * quadCount + col].vertices[11] += row + chunk.y;
             
-            grid[row * quadCount + col].vertices[12] += col;
+            grid[row * quadCount + col].vertices[12] += col + chunk.x;
             grid[row * quadCount + col].vertices[13] += chunk.values[row * CHUNK_SIZE + (col + 1)];
-            grid[row * quadCount + col].vertices[14] += row;
+            grid[row * quadCount + col].vertices[14] += row + chunk.y;
             
-            grid[row * quadCount + col].vertices[15] += col;
+            grid[row * quadCount + col].vertices[15] += col + chunk.x;
             grid[row * quadCount + col].vertices[16] += chunk.values[row * CHUNK_SIZE + col];
-            grid[row * quadCount + col].vertices[17] += row;
-            
-            height += 1;
+            grid[row * quadCount + col].vertices[17] += row + chunk.y;
         }
     }
     push_chunk(grid, x, y, 4); // TODO(Michael): magic value 4 for stride
@@ -276,11 +273,15 @@ void render(W3dContext context, Shader shader)
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    glBindVertexArray(gChunkData.VAOs[0]);
-    // glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
-    int verticesPerQuad = 6;
+    for (int i = 0; i < gChunkData.chunks.size(); ++i)
+    {
+        glBindVertexArray(gChunkData.VAOs[i]);
+        // glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
+        int verticesPerQuad = 6;
+        glDrawArrays(GL_TRIANGLES, 0, grid.size() * (verticesPerQuad));
+    }
+    
     //glPolygonMode(GL_FRONT, GL_LINE);
-    glDrawArrays(GL_TRIANGLES, 0, grid.size() * (verticesPerQuad));
     SDL_GL_SwapWindow(context.sdlWnd);
 }
 
