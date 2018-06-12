@@ -56,6 +56,12 @@ struct Quad  // this is CCW! FUCK AUTOFORMAT VS!!!! I AM INTENTIONALLY FORMATTIN
     };
 };
 
+struct GlChunkData
+{
+    GLuint VAOs[16];
+    GLuint VBOs[16];
+};
+
 char* load_text(char const* filename);
 void check_shader_error(GLuint shader);
 W3dContext initGL(int width, int height);
@@ -63,7 +69,7 @@ Camera create_camera();
 void update_mvp(glm::mat4& mvp, Shader& shader);
 glm::mat4 create_mvp(W3dContext context, Camera camera);
 Shader create_shader_program();
-void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Chunk>& chunks,
+void create_grid(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
                  glm::mat4 mvp);
 void render(W3dContext context, Shader shader);
 

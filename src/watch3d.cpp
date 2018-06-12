@@ -48,6 +48,7 @@ static Quad quad;
 static std::vector<Quad> grid;
 static GLuint vao;
 static GLuint tex;
+static GlChunkData chunkData;
 
 char* load_text(char const* filename)
 {
@@ -198,7 +199,7 @@ Shader create_shader_program()
     return {shaderProgram};
 }
 
-void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Chunk>& chunks,
+void create_grid(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
                  glm::mat4 mvp)
 {
     int quadCount = CHUNK_SIZE - 1;
@@ -211,29 +212,29 @@ void create_grid(int gridSize, Shader shader, W3dContext context, std::vector<Ch
             
             // first triangle
             grid[row * quadCount + col].vertices[0] += col;
-            grid[row * quadCount + col].vertices[1] += chunks[0].values[row * CHUNK_SIZE + col];
+            grid[row * quadCount + col].vertices[1] += chunk.values[row * CHUNK_SIZE + col];
             grid[row * quadCount + col].vertices[2] += row;
             
             grid[row * quadCount + col].vertices[3] += col;
-            grid[row * quadCount + col].vertices[4] += chunks[0].values[(row + 1) * CHUNK_SIZE+ col];
+            grid[row * quadCount + col].vertices[4] += chunk.values[(row + 1) * CHUNK_SIZE+ col];
             grid[row * quadCount + col].vertices[5] += row;
             
             grid[row * quadCount + col].vertices[6] += col;
-            grid[row * quadCount + col].vertices[7] += chunks[0].values[(row + 1) * CHUNK_SIZE + (col + 1)];
+            grid[row * quadCount + col].vertices[7] += chunk.values[(row + 1) * CHUNK_SIZE + (col + 1)];
             grid[row * quadCount + col].vertices[8] += row;
             
 			
             // second triangle
             grid[row * quadCount + col].vertices[9] += col;
-            grid[row * quadCount + col].vertices[10] += chunks[0].values[(row + 1) * CHUNK_SIZE + (col + 1)];
+            grid[row * quadCount + col].vertices[10] += chunk.values[(row + 1) * CHUNK_SIZE + (col + 1)];
             grid[row * quadCount + col].vertices[11] += row;
             
             grid[row * quadCount + col].vertices[12] += col;
-            grid[row * quadCount + col].vertices[13] += chunks[0].values[row * CHUNK_SIZE + (col + 1)];
+            grid[row * quadCount + col].vertices[13] += chunk.values[row * CHUNK_SIZE + (col + 1)];
             grid[row * quadCount + col].vertices[14] += row;
             
             grid[row * quadCount + col].vertices[15] += col;
-            grid[row * quadCount + col].vertices[16] += chunks[0].values[row * CHUNK_SIZE + col];
+            grid[row * quadCount + col].vertices[16] += chunk.values[row * CHUNK_SIZE + col];
             grid[row * quadCount + col].vertices[17] += row;
             
             height += 1;
@@ -332,6 +333,6 @@ void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 			out << "\n";
 		}
 	}
-
+    
 	out.close();
 }

@@ -95,7 +95,7 @@ int main(int, char* [])
 			//chunk.renderToPGM("chunk" + std::to_string(col) + std::to_string(row) + ".pgm"); // debug
         }
     }
-
+    
 	renderToPGM(chunks, "chunks.pgm"); // debug
     
 	// Generate Image Data. Each Component is a byte in RGBA order. (obsolete, keep for reference)
@@ -130,7 +130,7 @@ int main(int, char* [])
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
-    create_grid(100, shader, renderCtx, chunks, MVP);  // TODO(Michael), grid size has to match value in v-shader.
+    create_grid(100, shader, renderCtx, chunks[0], MVP);  // TODO(Michael), grid size has to match value in v-shader.
     
     bool running = true;
     
