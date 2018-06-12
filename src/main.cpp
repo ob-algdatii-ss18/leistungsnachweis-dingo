@@ -130,7 +130,7 @@ int main(int, char* [])
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
-    create_chunk(100, shader, renderCtx, chunks[0], MVP); // TODO(Michael), grid size has to match value in v-shader.
+    create_chunk(shader, renderCtx, chunks[0], 0, 0); // TODO(Michael), grid size has to match value in v-shader.
     
     bool running = true;
     

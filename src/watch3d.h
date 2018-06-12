@@ -70,9 +70,9 @@ Camera create_camera();
 void update_mvp(glm::mat4& mvp, Shader& shader);
 glm::mat4 create_mvp(W3dContext context, Camera camera);
 Shader create_shader_program();
-void create_chunk(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
-                  glm::mat4 mvp);
-void push_gpu(std::vector<Quad>& chunk, int row, int col, int stride);
+void create_chunk(Shader shader, W3dContext context, Chunk& chunk,
+                  int x, int y);
+void push_chunk(std::vector<Quad>& chunk, int row, int col, int stride);
 void render(W3dContext context, Shader shader);
 
 // helper

@@ -203,8 +203,8 @@ Shader create_shader_program()
     return {shaderProgram};
 }
 
-void create_chunk(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
-                  glm::mat4 mvp)
+void create_chunk(Shader shader, W3dContext context, Chunk& chunk,
+                  int x, int y)
 {
     int quadCount = CHUNK_SIZE - 1;
     grid = std::vector<Quad>(quadCount * quadCount); // 4 quads per perlin-value
@@ -244,12 +244,10 @@ void create_chunk(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
             height += 1;
         }
     }
-    
-    push_gpu(grid, 0, 0, 4);
-    
+    push_chunk(grid, x, y, 4); // TODO(Michael): magic value 4 for stride
 }
 
-void push_gpu(std::vector<Quad>& chunk, int row, int col, int stride)
+void push_chunk(std::vector<Quad>& chunk, int row, int col, int stride)
 {
     GLuint vao = 0;
     glGenVertexArrays(1, &vao);
@@ -289,25 +287,25 @@ void render(W3dContext context, Shader shader)
 // renders first column only
 void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 {
-	int stride = 4;
-	std::ofstream out(filename);
-	if (!out)
-		return;
-	out << "P2" << "\n";
-	out << CHUNK_SIZE << " " << CHUNK_SIZE * stride << "\n";
-	out << "255" << "\n";
-	for (int i = 0; i < stride; ++i)
-	{
-		for (int row = 0; row < CHUNK_SIZE; ++row)
-		{
-			for (int col = 0; col < CHUNK_SIZE; ++col)
-			{
-				int value = chunks[i * stride].values[row * CHUNK_SIZE + col] * 255;
-				out << value << " ";
-			}
-			out << "\n";
-		}
-	}
+    int stride = 4;
+    std::ofstream out(filename);
+    if (!out)
+        return;
+    out << "P2" << "\n";
+    out << CHUNK_SIZE << " " << CHUNK_SIZE * stride << "\n";
+    out << "255" << "\n";
+    for (int i = 0; i < stride; ++i)
+    {
+        for (int row = 0; row < CHUNK_SIZE; ++row)
+        {
+            for (int col = 0; col < CHUNK_SIZE; ++col)
+            {
+                int value = chunks[i * stride].values[row * CHUNK_SIZE + col] * 255;
+                out << value << " ";
+            }
+            out << "\n";
+        }
+    }
     
-	out.close();
+    out.close();
 }
