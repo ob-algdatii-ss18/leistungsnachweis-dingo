@@ -118,6 +118,10 @@ W3dContext initGL(int width, int height)
         printf("Failed to get extended Render Context");
     }
     
+    // init data
+    // TODO(Michael): do this elsewhere...
+    gChunkData.chunks.resize(4 * 4);
+    
     return {glWindow, glContext, width, height};
 }
 
@@ -241,36 +245,11 @@ void create_chunk(int gridSize, Shader shader, W3dContext context, Chunk& chunk,
         }
     }
     
-    push_gpu(grid);
+    push_gpu(grid, 0, 0, 4);
     
-    glUseProgram(shader.program);
-    // texture
-    //tex = 0;
-    //glGenTextures(1, &tex);
-    //glBindTexture(GL_TEXTURE_2D, tex);
-    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, context.width, context.height, 0, GL_RGBA,
-    //             GL_UNSIGNED_BYTE, &image[0]);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    //glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    
-    //// link to tex uniform in vertex shader
-    //int tex_loc = glGetUniformLocation(shader.program, "tex");
-    //if (tex_loc == -1)
-    //{
-    //    printf("no such active uniform variable in current shader program!\n");
-    //}
-    //glUniform1i(tex_loc, 0);
-    //glActiveTexture(GL_TEXTURE0);
-    
-    GLuint MatrixID = glGetUniformLocation(shader.program, "MVP");
-    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-    
-    glViewport(0, 0, context.width, context.height);
 }
 
-void push_gpu(std::vector<Quad>& chunk)
+void push_gpu(std::vector<Quad>& chunk, int row, int col, int stride)
 {
     GLuint vao = 0;
     glGenVertexArrays(1, &vao);
@@ -284,9 +263,9 @@ void push_gpu(std::vector<Quad>& chunk)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     // enable, affects only the previously bound VBOs!
     glEnableVertexAttribArray(0);
-    gChunkData.VAOs[0] = vao;
-    gChunkData.VBOs[0] = vbo;
-    gChunkData.chunks.push_back(chunk);
+    gChunkData.VAOs[row * stride + col] = vao;
+    gChunkData.VBOs[row * stride + col] = vbo;
+    gChunkData.chunks[row * stride + col] = chunk;
 }
 
 void render(W3dContext context, Shader shader)
