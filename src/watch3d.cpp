@@ -292,20 +292,22 @@ void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
     if (!out)
         return;
     out << "P2" << "\n";
-    out << CHUNK_SIZE << " " << CHUNK_SIZE * CHUNK_STRIDE << "\n";
+    out << CHUNK_SIZE * CHUNK_STRIDE << " " << CHUNK_SIZE * CHUNK_STRIDE << "\n";
     out << "255" << "\n";
     for (int i = 0; i < CHUNK_STRIDE; ++i)
     {
         for (int row = 0; row < CHUNK_SIZE; ++row)
         {
-            for (int col = 0; col < CHUNK_SIZE; ++col)
+            for (int j = 0; j < CHUNK_STRIDE; ++j)
             {
-                int value = chunks[i * CHUNK_STRIDE].values[row * CHUNK_SIZE + col] * 255;
-                out << value << " ";
+                for (int col = 0; col < CHUNK_SIZE; ++col)
+                {
+                    int value = chunks[i * CHUNK_STRIDE + j].values[row * CHUNK_SIZE + col] * 255;
+                    out << value << " ";
+                }
+                out << "\n";
             }
-            out << "\n";
         }
     }
-    
     out.close();
 }
