@@ -77,31 +77,36 @@ int main(int, char* [])
     const int height = 480;
     const int components = 4;  // RGBA
     
+    float dummy = 0.1f;
     for (int row = 0; row < AREA_STRIDE; ++row)
     {
         for (int col = 0; col < AREA_STRIDE; ++col)
         {
             Area area(row, col);
-            area.amplitude = 1.0f;
-            area.frequency = 1.0f;
+            area.amplitude = dummy;
+            area.frequency = dummy;
             areas[row * AREA_STRIDE + col] = area;
+            dummy += 0.2f;
         }
     }
     
     std::vector<Chunk> chunks;
-    for (u8 row = 0; row < CHUNK_STRIDE; ++row)
+    for (int areaIndex = 0; areaIndex < AREA_STRIDE * AREA_STRIDE; ++areaIndex)
     {
-        for (u8 col = 0; col < CHUNK_STRIDE; ++col)
+        for (u8 row = 0; row < CHUNK_STRIDE; ++row)
         {
-            Chunk chunk(col, row, areas, ChunkType::Inner);
-            chunk.calculate();
-            chunks.push_back(chunk);
-			//chunk.renderToPGM("chunk" + std::to_string(col) + std::to_string(row) + ".pgm"); // debug
+            for (u8 col = 0; col < CHUNK_STRIDE; ++col)
+            {
+                Chunk chunk(col, row, &areas[areaIndex], ChunkType::Inner);
+                chunk.calculate();
+                chunks.push_back(chunk);
+                chunk.renderToPGM("chunk" + std::to_string(areaIndex) + "_" + std::to_string(col) + std::to_string(row) + ".pgm"); // debug
+            }
         }
     }
+    renderToPGM(chunks, "chunks.pgm"); // debug
     
-	renderToPGM(chunks, "chunks.pgm"); // debug
-    
+	
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
