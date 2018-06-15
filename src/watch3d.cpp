@@ -120,7 +120,7 @@ W3dContext initGL(int width, int height)
     
     // init data
     // TODO(Michael): do this elsewhere...
-    gChunkData.chunks.resize(4 * 4);
+    gChunkData.chunks.resize(CHUNK_STRIDE * CHUNK_STRIDE);
     
     return {glWindow, glContext, width, height};
 }
@@ -241,7 +241,7 @@ void create_chunk(Shader shader, W3dContext context, Chunk& chunk,
             grid[row * quadCount + col].vertices[17] += row + offsetY;
         }
     }
-    push_chunk(grid, x, y, 4); // TODO(Michael): magic value 4 for stride
+    push_chunk(grid, x, y, CHUNK_STRIDE); // TODO(Michael): magic value 4 for stride
 }
 
 void push_chunk(std::vector<Quad>& chunk, int row, int col, int stride)
@@ -288,20 +288,19 @@ void render(W3dContext context, Shader shader)
 // renders first column only
 void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 {
-    int stride = 4;
     std::ofstream out(filename);
     if (!out)
         return;
     out << "P2" << "\n";
-    out << CHUNK_SIZE << " " << CHUNK_SIZE * stride << "\n";
+    out << CHUNK_SIZE << " " << CHUNK_SIZE * CHUNK_STRIDE << "\n";
     out << "255" << "\n";
-    for (int i = 0; i < stride; ++i)
+    for (int i = 0; i < CHUNK_STRIDE; ++i)
     {
         for (int row = 0; row < CHUNK_SIZE; ++row)
         {
             for (int col = 0; col < CHUNK_SIZE; ++col)
             {
-                int value = chunks[i * stride].values[row * CHUNK_SIZE + col] * 255;
+                int value = chunks[i * CHUNK_STRIDE].values[row * CHUNK_SIZE + col] * 255;
                 out << value << " ";
             }
             out << "\n";

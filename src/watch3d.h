@@ -58,8 +58,8 @@ struct Quad  // this is CCW! FUCK AUTOFORMAT VS!!!! I AM INTENTIONALLY FORMATTIN
 
 struct GlChunkData
 {
-    GLuint VAOs[16];
-    GLuint VBOs[16];
+    GLuint VAOs[CHUNK_STRIDE * CHUNK_STRIDE];
+    GLuint VBOs[CHUNK_STRIDE * CHUNK_STRIDE];
     std::vector<std::vector<Quad>> chunks;
 };
 

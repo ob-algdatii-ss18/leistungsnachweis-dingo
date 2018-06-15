@@ -85,9 +85,9 @@ int main(int, char* [])
 	Area *areas[] = { &area };
     
     std::vector<Chunk> chunks;
-    for (u8 row = 0; row < 4; ++row)
+    for (u8 row = 0; row < CHUNK_STRIDE; ++row)
     {
-        for (u8 col = 0; col < 4; ++col)
+        for (u8 col = 0; col < CHUNK_STRIDE; ++col)
         {
             Chunk chunk(col, row, areas, ChunkType::Inner);
             chunk.calculate();
@@ -97,27 +97,6 @@ int main(int, char* [])
     }
     
 	renderToPGM(chunks, "chunks.pgm"); // debug
-    
-	// Generate Image Data. Each Component is a byte in RGBA order. (obsolete, keep for reference)
-    //float z = 0.f;
-    //size_t idx = 0;
-    //for (int y = 0; y < CHUNK_SIZE; ++y)
-    //{
-    //    for (int x = 0; x < CHUNK_SIZE; ++x)
-    //    {
-    //        float perlin = octavePerlin(x, y, z, area);
-    //        
-    //        // Get 0.0 - 1.0 value to 0 - 255
-    //        u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-    //        for (int c = 0; c < components; ++c)
-    //        {
-    //            image[idx++] = colorValue;
-    //        }
-    //    }
-    //}
-    //z += 0.05f;
-    //// Wrap the value to not run into floating point issues
-    //z = fmod(z, 256.f);
     
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -131,12 +110,13 @@ int main(int, char* [])
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
     
-    for (int row = 0; row < 4; ++row)
+    // prepare chunk-data for render
+    for (int row = 0; row < CHUNK_STRIDE; ++row)
     {
-        for (int col = 0; col < 4; ++col)
+        for (int col = 0; col < CHUNK_STRIDE; ++col)
         {
             
-            create_chunk(shader, renderCtx, chunks[row * 4 + col], row, col);
+            create_chunk(shader, renderCtx, chunks[row * CHUNK_STRIDE + col], row, col);
         }
     }
     
