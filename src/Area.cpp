@@ -21,7 +21,7 @@ static std::uniform_real_distribution<float> random_float(0.1f, 1.0f);
 static u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
 static std::default_random_engine generator(seed);
 
-Area::Area()
+Area::Area(u32 x, u32 y) : x(x), y(y)
 {
     amplitude = random_float(rng);
     frequency = random_float(rng);

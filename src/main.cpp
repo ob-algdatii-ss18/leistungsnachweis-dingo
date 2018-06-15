@@ -69,20 +69,24 @@ void process_keys(Camera& camera)
     camera.target = camera.pos + glm::normalize(front);
 }
 
+static Area areas[AREA_STRIDE * AREA_STRIDE];
+
 int main(int, char* [])
 {
     const int width = 640;
     const int height = 480;
     const int components = 4;  // RGBA
     
-    // Create data buffer
-    std::vector<u8> image;
-    image.resize(CHUNK_SIZE * CHUNK_SIZE * components);
-    
-    Area area;
-	area.amplitude = 1.0f;
-	area.frequency = 1.0f;
-	Area *areas[] = { &area };
+    for (int row = 0; row < AREA_STRIDE; ++row)
+    {
+        for (int col = 0; col < AREA_STRIDE; ++col)
+        {
+            Area area(row, col);
+            area.amplitude = 1.0f;
+            area.frequency = 1.0f;
+            areas[row * AREA_STRIDE + col] = area;
+        }
+    }
     
     std::vector<Chunk> chunks;
     for (u8 row = 0; row < CHUNK_STRIDE; ++row)

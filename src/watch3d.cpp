@@ -285,7 +285,7 @@ void render(W3dContext context, Shader shader)
     SDL_GL_SwapWindow(context.sdlWnd);
 }
 
-// renders first column only
+// renders all chunks to pgm heightmap
 void renderToPGM(std::vector<Chunk>& chunks, std::string const & filename)
 {
     std::ofstream out(filename);

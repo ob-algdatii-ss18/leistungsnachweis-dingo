@@ -21,7 +21,14 @@ enum ChunkType : u8
 
 struct Chunk
 {
-	// Beim Rendern als offset benutzen um die absoluten Koordinaten der Werte zu erhalten.
+	Chunk(u8 x, u8 y, Area* areas, ChunkType type);
+	
+	float values[CHUNK_SIZE * CHUNK_SIZE];
+    
+	void calculate();
+	void renderToPGM(std::string& filename);
+    
+    // Beim Rendern als offset benutzen um die absoluten Koordinaten der Werte zu erhalten.
 	u32 x;
 	u32 y;
     
@@ -32,12 +39,6 @@ struct Chunk
 	// 3 horizontal		2 Areas (Rechts, Links)
 	// 4 corner			4 Areas (Oben Links, Oben Rechts, Unten Links, Unten Rechts)
 	ChunkType type;
-    
-	float values[CHUNK_SIZE * CHUNK_SIZE];
-    
-	Chunk(u8 x, u8 y, Area** areas, ChunkType type);
-	void calculate();
-	void renderToPGM(std::string& filename);
     
     private:
     
