@@ -26,7 +26,7 @@ struct Chunk
 	float values[CHUNK_SIZE * CHUNK_SIZE];
     
 	void calculate();
-	void renderToPGM(std::string& filename);
+	void renderToPGM(std::string const & filename);
     
     // Beim Rendern als offset benutzen um die absoluten Koordinaten der Werte zu erhalten.
 	u32 x;
