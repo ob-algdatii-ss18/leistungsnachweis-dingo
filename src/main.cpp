@@ -82,7 +82,7 @@ int main(int, char* [])
     {
         for (int col = 0; col < AREA_STRIDE; ++col)
         {
-            Area area(row, col);
+            Area area(1, 1);
             area.amplitude = dummy;
             area.frequency = dummy;
             areas[row * AREA_STRIDE + col] = area;
@@ -166,7 +166,7 @@ int main(int, char* [])
         // Rendering
         
         render(renderCtx, shader);
-        
+        //render_area(activeArea, renderCtx, shader);
     }
     
     return 0;

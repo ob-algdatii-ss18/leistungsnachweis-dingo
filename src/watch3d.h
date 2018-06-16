@@ -74,6 +74,7 @@ void create_chunk(Shader shader, W3dContext context, Chunk& chunk,
                   int x, int y);
 void push_chunk(std::vector<Quad>& chunk, int row, int col, int stride);
 void render(W3dContext context, Shader shader);
+void render_area(Area& area, W3dContext context, Shader shader);
 
 // helper
 void renderToPGM(std::vector<Chunk>&, std::string const & filename);
