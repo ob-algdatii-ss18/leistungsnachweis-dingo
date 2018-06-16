@@ -7,6 +7,7 @@
 #include <random>
 #include "TypeDef.h"
 
+//GUI includes
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -14,6 +15,7 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
+#include <thread> 
 
 #include "Area.h"
 #include "Chunk.h"
@@ -21,6 +23,7 @@
 #include "watch3d.h"
 
 unsigned int keystates[512];
+float zAxis = 0;
 
 void process_keys(Camera& camera)
 {
@@ -77,15 +80,10 @@ void process_keys(Camera& camera)
     camera.target = camera.pos + glm::normalize(front);
 }
 
-int main(int, char* [])
-{
-	sf::RenderWindow window(sf::VideoMode(1920, 1080), "");
+void runImGUI() {
+	sf::RenderWindow window(sf::VideoMode(640, 480), "");
 	window.setVerticalSyncEnabled(true);
 	ImGui::SFML::Init(window);
-
-	sf::Color bgColor;
-
-	float color[3] = { 0.f, 0.f, 0.f };
 
 	// let's use char array as buffer, see next part
 	// for instructions on using std::string with ImGui
@@ -106,35 +104,23 @@ int main(int, char* [])
 
 		ImGui::SFML::Update(window, deltaClock.restart());
 
-		ImGui::Begin("Sample window"); // begin window
+		ImGui::Begin("parameters", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
-									   // Background color edit
-		if (ImGui::ColorEdit3("Background color", color)) {
-			// this code gets called if color value changes, so
-			// the background color is upgraded automatically!
-			bgColor.r = static_cast<sf::Uint8>(color[0] * 255.f);
-			bgColor.g = static_cast<sf::Uint8>(color[1] * 255.f);
-			bgColor.b = static_cast<sf::Uint8>(color[2] * 255.f);
-		}
+		ImGui::PushItemWidth(500);
+		ImGui::SliderFloat("z-axis", &zAxis, 0.0f, 5.f);
 
-		// Window title text edit
-		ImGui::InputText("Window title", windowTitle, 255);
 
-		if (ImGui::Button("Update window title")) {
-			// this code gets if user clicks on the button
-			// yes, you could have written if(ImGui::InputText(...))
-			// but I do this to show how buttons work :)
-			window.setTitle(windowTitle);
-		}
 		ImGui::End(); // end window
-
-		window.clear(bgColor); // fill background with color
 		ImGui::SFML::Render(window);
 		window.display();
+
 	}
-
 	ImGui::SFML::Shutdown();
+}
 
+
+int main(int, char* [])
+{
     const int width = 640;
     const int height = 480;
     const int components = 4;  // RGBA
@@ -170,6 +156,9 @@ int main(int, char* [])
     Shader shader = create_shader_program();
     create_grid(100, shader, renderCtx, image,
                 MVP);  // TODO(Michael), grid size has to match value in v-shader.
+
+	//
+	std::thread imGUI(runImGUI);
 
     // Running var for animation
     float z = 0.f;
@@ -214,7 +203,7 @@ int main(int, char* [])
         {
             for (int x = 0; x < width; ++x)
             {
-                float perlin = octavePerlin(x, y, z, area);
+                float perlin = octavePerlin(x, y, zAxis, area);
 
                 // Get 0.0 - 1.0 value to 0 - 255
                 u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
@@ -231,6 +220,8 @@ int main(int, char* [])
         // Wrap the value to not run into floating point issues
         z = fmod(z, 256.f);
     }
+		
+	imGUI.join();
 
     return 0;
 }
