@@ -4,6 +4,8 @@ in vec3 vertex_pos;
 in vec3 colors;
 uniform sampler2D tex;
 uniform mat4 MVP;
+uniform int areaX;
+uniform int areaY;
 out vec3 fragColors;
 out float vertexY;
 out vec3 vertex;
@@ -17,5 +19,16 @@ void main ()
   // vertexY = vertex_pos.y + dv.x;
   // fragColors = vec3(colors);
   vertexY = vertex_pos.y;
-  gl_Position = MVP * vec4(vertex_pos.x, vertex_pos.y * 50.0f, vertex_pos.z, 1.0f);
+
+//  if(areaX == 0)
+//	vertexY = 1.f;
+//  if(areaX == 1)
+//	vertexY = 0.5f;
+//	
+//  if(areaX == 2)
+//	vertexY = 0.0f;
+
+
+  gl_Position = MVP * vec4(vertex_pos.x, vertex_pos.y * 50.0f , vertex_pos.z, 1.0f);
+  //gl_Position = MVP * vec4(vertex_pos.x + areaX * 200.0f, vertex_pos.y * 50.0f , vertex_pos.z + areaY * 200.0f, 1.0f);
 }
