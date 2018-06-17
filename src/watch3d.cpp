@@ -6,6 +6,10 @@ static std::vector<Quad> grid;
 static GLuint vao;
 static GLuint tex;
 
+GlChunkData gChunkData;
+float max;
+float min;
+
 char* load_text(char const* filename)
 {
     FILE* f = fopen(filename, "rb");
@@ -247,14 +251,6 @@ void render(W3dContext context, Shader shader)
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     int i = 0;
-
-    float max = -10000000.f;
-    float min = 10000000.f;
-    for (auto&& area : g_areas)
-    {
-        max = glm::max(area.global_amplitude, max);
-        min = glm::min(area.global_amplitude, min);
-    }
 
     for (int areaIndexY = 0; areaIndexY < AREA_STRIDE; ++areaIndexY)
     {

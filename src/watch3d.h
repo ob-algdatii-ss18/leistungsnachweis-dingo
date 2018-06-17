@@ -68,5 +68,7 @@ void render_area(Area& area, W3dContext context, Shader shader);
 
 // helper
 void renderToPGM(std::vector<Chunk>&, std::string const& filename);
-inline GlChunkData gChunkData;
+extern GlChunkData gChunkData;
+extern float max;
+extern float min;
 #endif

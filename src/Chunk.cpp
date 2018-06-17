@@ -7,7 +7,7 @@
 #include "Chunk.h"
 #include <fstream>
 #include "Perlin.h"
-
+std::vector<Area> g_areas;
 #define Z_VALUE 0
 static float clamp(float x, float lowerlimit, float upperlimit)
 {

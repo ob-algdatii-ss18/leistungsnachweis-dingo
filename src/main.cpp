@@ -209,6 +209,14 @@ static void CalculateAllChunks(Shader &shader, W3dContext &renderCtx)
             }
         }
     }
+
+    max = -100000000.f;
+    min = 100000000.f;
+    for (auto &&area : g_areas)
+    {
+        max = glm::max(area.global_amplitude, max);
+        min = glm::min(area.global_amplitude, min);
+    }
 }
 
 int main(int, char *[])
@@ -223,7 +231,7 @@ int main(int, char *[])
         for (int col = 0; col < AREA_STRIDE; ++col)
         {
             Area area(col + 1, row + 1);
-            area.amplitude = 1.4f * dummy * 15.f;
+            area.amplitude = 1.4f * dummy;
             area.global_amplitude = 1.f;
             area.frequency = 0.7f * dummy;
             g_areas.push_back(area);
@@ -292,18 +300,19 @@ int main(int, char *[])
 
         // Rendering
         {
+            static float sliderSpeed = 0.01f;
             ImGui::Begin("Parameters", NULL, ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                         1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
+            ImGui::DragFloat("Slider Speed", &sliderSpeed, 0.01f);
             static int areaIndex = 0;
             ImGui::DragInt("Select Area Index", &areaIndex, 1, 0, g_areas.size() - 1);
             ImGui::Separator();
             ImGui::Text("Selected Area Coordinates (x,y): %i,%i", g_areas[areaIndex].x,
                         g_areas[areaIndex].y);
-            ImGui::DragFloat("Inner Amplitude", &g_areas[areaIndex].amplitude, 2.f, 0.f);
-            ImGui::DragFloat("Amplitude", &g_areas[areaIndex].global_amplitude, .3f, 0.f);
-            ImGui::DragFloat("Frequency", &g_areas[areaIndex].frequency, 0.1f, 0.f);
+            ImGui::DragFloat("Inner Amplitude", &g_areas[areaIndex].amplitude, sliderSpeed, 0.f);
+            ImGui::DragFloat("Amplitude", &g_areas[areaIndex].global_amplitude, sliderSpeed, 0.f);
+            ImGui::DragFloat("Frequency", &g_areas[areaIndex].frequency, sliderSpeed, 0.f);
             static int octaves = 0;
             octaves = g_areas[areaIndex].octaves;
             ImGui::DragInt("Octaves", &octaves, 2, 8);

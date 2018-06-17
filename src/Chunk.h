@@ -59,4 +59,4 @@ struct Chunk
     void calculate_corner_br();
 };
 
-inline std::vector<Area> g_areas;
+extern std::vector<Area> g_areas;
