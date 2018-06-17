@@ -21,12 +21,12 @@ static std::uniform_real_distribution<float> random_float(0.1f, 1.0f);
 static u32 seed = (u32)std::chrono::system_clock::now().time_since_epoch().count();
 static std::default_random_engine generator(seed);
 
-Area::Area()
+Area::Area(u32 x, u32 y) : x(x), y(y)
 {
     amplitude = random_float(rng);
     frequency = random_float(rng);
     octaves = random_int(rng);
-
+    
     // Fill with 0 to 255
     auto permEnd = permutation.begin() + 256;
     std::iota(permutation.begin(), permEnd, 1);

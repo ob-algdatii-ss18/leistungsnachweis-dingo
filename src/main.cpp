@@ -2,11 +2,11 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <string>
 #include <functional>
 #include <numeric>
 #include <random>
 #include "TypeDef.h"
-
 #include "Area.h"
 #include "Chunk.h"
 #include "Perlin.h"
@@ -19,7 +19,7 @@ void process_keys(Camera& camera)
     // TODO(Michael): move statics out
     static float pitch = 0.0f;
     static float yaw = -90.0f;
-
+    
     if (keystates[SDL_SCANCODE_A])
     {
         glm::vec3 camForward = glm::normalize((camera.target - camera.pos));
@@ -69,48 +69,68 @@ void process_keys(Camera& camera)
     camera.target = camera.pos + glm::normalize(front);
 }
 
+static Area areas[AREA_STRIDE * AREA_STRIDE];
+
 int main(int, char* [])
 {
     const int width = 640;
     const int height = 480;
     const int components = 4;  // RGBA
-
-    // Create data buffer
-    std::vector<u8> image;
-    image.resize(width * height * components);
-
-    Area area;
-	Area *areas[] = { &area };
-
-    std::vector<Chunk> chunks;
-    for (u8 x = 0; x < 4; ++x)
+    
+    float dummy = 0.1f;
+    for (int row = 0; row < AREA_STRIDE; ++row)
     {
-        for (u8 y = 0; y < 4; ++y)
+        for (int col = 0; col < AREA_STRIDE; ++col)
         {
-            Chunk chunk(x, y, areas, ChunkType::Inner);
-            chunk.calculate();
-            chunks.push_back(chunk);
+            Area area(1, 1);
+            area.amplitude = dummy;
+            area.frequency = dummy;
+            areas[row * AREA_STRIDE + col] = area;
+            dummy += 0.2f;
         }
     }
-
+    
+    std::vector<Chunk> chunks;
+    for (int areaIndex = 0; areaIndex < AREA_STRIDE * AREA_STRIDE; ++areaIndex)
+    {
+        for (u8 row = 0; row < CHUNK_STRIDE; ++row)
+        {
+            for (u8 col = 0; col < CHUNK_STRIDE; ++col)
+            {
+                Chunk chunk(col, row, &areas[areaIndex], ChunkType::Inner);
+                chunk.calculate();
+                chunks.push_back(chunk);
+                chunk.renderToPGM("chunk" + std::to_string(areaIndex) + "_" + std::to_string(col) + std::to_string(row) + ".pgm"); // debug
+            }
+        }
+    }
+    renderToPGM(chunks, "chunks.pgm"); // debug
+    
+	
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return 1;
     }
-
+    
     W3dContext renderCtx = initGL(width, height);
     Camera camera = create_camera();
     glm::mat4 MVP = create_mvp(renderCtx, camera);
     Shader shader = create_shader_program();
-    create_grid(100, shader, renderCtx, image,
-                MVP);  // TODO(Michael), grid size has to match value in v-shader.
-
-    // Running var for animation
-    float z = 0.f;
+    
+    // prepare chunk-data for render
+    for (int row = 0; row < CHUNK_STRIDE; ++row)
+    {
+        for (int col = 0; col < CHUNK_STRIDE; ++col)
+        {
+            
+            create_chunk(shader, renderCtx, chunks[row * CHUNK_STRIDE + col], row, col);
+        }
+    }
+    
     bool running = true;
-
+    
     u32 start = SDL_GetTicks();
     while (running)
     {
@@ -122,7 +142,7 @@ int main(int, char* [])
                 running = false;
             if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                 running = false;
-
+            
             if (event.type == SDL_KEYDOWN)
             {
                 keystates[event.key.keysym.scancode] = 1;
@@ -133,40 +153,21 @@ int main(int, char* [])
             }
         }
         process_keys(camera);
-
+        
         MVP = create_mvp(renderCtx, camera);
         update_mvp(MVP, shader);
-
+        
         // Calculate Delta-Time to see runtime
         u32 current = SDL_GetTicks();
         u32 deltams = current - start;
         start = current;
         printf("Delta Time: %dms\n", deltams);
-
+        
         // Rendering
-        // Generate Image Data. Each Component is a byte in RGBA order.
-        size_t idx = 0;
-        for (int y = 0; y < height; ++y)
-        {
-            for (int x = 0; x < width; ++x)
-            {
-                float perlin = octavePerlin(x, y, z, area);
-
-                // Get 0.0 - 1.0 value to 0 - 255
-                u8 colorValue = static_cast<u8>(perlin_fastfloor(perlin * 256));
-                for (int c = 0; c < components; ++c)
-                {
-                    image[idx++] = colorValue;
-                }
-            }
-        }
-
-        render(renderCtx, shader, image);
-
-        z += 0.05f;
-        // Wrap the value to not run into floating point issues
-        z = fmod(z, 256.f);
+        
+        render(renderCtx, shader);
+        //render_area(activeArea, renderCtx, shader);
     }
-
+    
     return 0;
 }

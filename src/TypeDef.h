@@ -18,3 +18,7 @@ typedef uint64_t u64;
 
 typedef float f32;
 typedef double f64;
+
+#define CHUNK_STRIDE 3
+#define CHUNK_SIZE 64
+#define AREA_STRIDE 2
