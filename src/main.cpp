@@ -24,6 +24,8 @@
 
 unsigned int keystates[512];
 float zAxis = 0;
+Area area;
+Area *areas[] = { &area };
 
 void process_keys(Camera& camera)
 {
@@ -104,7 +106,15 @@ void runImGUI() {
 
 		ImGui::SFML::Update(window, deltaClock.restart());
 
+		// ------------------------------------------------------------
+		//amplitude und frequency hier aendern
 		ImGui::Begin("parameters", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+		for (int i = 0; i < sizeof(areas); ++i) {
+			// button name aendern. referenzierung auf die frequency ist falsch 
+			//ImGui::InputFloat("button " + i, &(areas[i]->frequency));
+		}
+
+		//-----------------------------------------------------------
 
 		ImGui::PushItemWidth(500);
 		ImGui::SliderFloat("z-axis", &zAxis, 0.0f, 5.f);
@@ -128,9 +138,6 @@ int main(int, char* [])
     // Create data buffer
     std::vector<u8> image;
     image.resize(width * height * components);
-
-    Area area;
-	Area *areas[] = { &area };
 
     std::vector<Chunk> chunks;
     for (u8 x = 0; x < 4; ++x)
