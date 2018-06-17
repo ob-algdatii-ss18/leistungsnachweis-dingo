@@ -1,8 +1,8 @@
 /**
-*  @file    Perlin.cpp
-*  @author  
-*  @date    05 June 2018
-*/
+ *  @file    Perlin.cpp
+ *  @author
+ *  @date    05 June 2018
+ */
 
 #include "Perlin.h"
 #include <algorithm>
@@ -139,5 +139,5 @@ float octavePerlin(float x, float y, float z, const Area& area)
         frequency *= 2.f;
     }
 
-    return total / maxValue;
+    return total / maxValue * area.global_amplitude;
 }

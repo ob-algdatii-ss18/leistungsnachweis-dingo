@@ -47,6 +47,7 @@ struct Quad  // this is CCW! FUCK AUTOFORMAT VS!!!! I AM INTENTIONALLY FORMATTIN
 
 struct GlChunkData
 {
+    int currentIndex = 0;
     GLuint VAOs[CHUNK_STRIDE * CHUNK_STRIDE * AREA_STRIDE * AREA_STRIDE];
     GLuint VBOs[CHUNK_STRIDE * CHUNK_STRIDE * AREA_STRIDE * AREA_STRIDE];
     std::vector<std::vector<Quad>> chunks;
@@ -67,5 +68,5 @@ void render_area(Area& area, W3dContext context, Shader shader);
 
 // helper
 void renderToPGM(std::vector<Chunk>&, std::string const& filename);
-
+inline GlChunkData gChunkData;
 #endif

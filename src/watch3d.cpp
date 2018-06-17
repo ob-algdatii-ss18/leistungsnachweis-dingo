@@ -5,7 +5,6 @@ static Quad quad;
 static std::vector<Quad> grid;
 static GLuint vao;
 static GLuint tex;
-static GlChunkData gChunkData;
 
 char* load_text(char const* filename)
 {
@@ -216,26 +215,25 @@ void push_chunk(std::vector<Quad>& chunk, Chunk& c)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
     // enable, affects only the previously bound VBOs!
     glEnableVertexAttribArray(0);
-    static int i = 0;
 
-    gChunkData.VAOs[i] = vao;
-    gChunkData.VBOs[i] = vbo;
-    gChunkData.chunks[i] = chunk;
+    gChunkData.VAOs[gChunkData.currentIndex] = vao;
+    gChunkData.VBOs[gChunkData.currentIndex] = vbo;
+    gChunkData.chunks[gChunkData.currentIndex] = chunk;
     if (c.type == Inner)
     {
-        gChunkData.col[i] = 0;
+        gChunkData.col[gChunkData.currentIndex] = 0;
     }
 
     if (c.type != ChunkType::Inner && c.type <= 4)
     {
-        gChunkData.col[i] = 1;
+        gChunkData.col[gChunkData.currentIndex] = 1;
     }
     if (c.type > 4)
     {
-        gChunkData.col[i] = 2;
+        gChunkData.col[gChunkData.currentIndex] = 2;
     }
 
-    i++;
+    gChunkData.currentIndex++;
 }
 
 void render(W3dContext context, Shader shader)
@@ -249,6 +247,15 @@ void render(W3dContext context, Shader shader)
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     int i = 0;
+
+    float max = -10000000.f;
+    float min = 10000000.f;
+    for (auto&& area : g_areas)
+    {
+        max = glm::max(area.global_amplitude, max);
+        min = glm::min(area.global_amplitude, min);
+    }
+
     for (int areaIndexY = 0; areaIndexY < AREA_STRIDE; ++areaIndexY)
     {
         for (int areaIndexX = 0; areaIndexX < AREA_STRIDE; ++areaIndexX)
@@ -259,11 +266,11 @@ void render(W3dContext context, Shader shader)
                 {
                     glBindVertexArray(gChunkData.VAOs[i]);
 
-                    GLuint xId = glGetUniformLocation(shader.program, "areaX");
-                    GLuint yId = glGetUniformLocation(shader.program, "areaY");
+                    GLuint maxI = glGetUniformLocation(shader.program, "maxAmp");
+                    GLuint minI = glGetUniformLocation(shader.program, "minAmp");
 
-                    glUniform1i(xId, gChunkData.col[i]);
-                    glUniform1i(yId, areaIndexY);
+                    glUniform1f(maxI, max);
+                    glUniform1f(minI, min);
                     // glBindTexture(GL_TEXTURE_2D, sprite->texture.texture_id);
                     int verticesPerQuad = 6;
                     glDrawArrays(GL_TRIANGLES, 0, grid.size() * (verticesPerQuad));
@@ -274,7 +281,6 @@ void render(W3dContext context, Shader shader)
     }
 
     // glPolygonMode(GL_FRONT, GL_LINE);
-    SDL_GL_SwapWindow(context.sdlWnd);
 }
 
 void render_area(Area& area, W3dContext context, Shader shader) {}

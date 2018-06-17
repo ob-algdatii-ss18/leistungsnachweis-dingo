@@ -4,8 +4,8 @@ in vec3 vertex_pos;
 in vec3 colors;
 uniform sampler2D tex;
 uniform mat4 MVP;
-uniform int areaX;
-uniform int areaY;
+uniform float maxAmp;
+uniform float minAmp;
 out vec3 fragColors;
 out float vertexY;
 out vec3 vertex;
@@ -18,7 +18,7 @@ void main ()
   // vec4 dv = texture2D(tex, vec2(1.0f / 100.0f * vertex_pos.x, 1.0f / 100.0f * vertex_pos.z));
   // vertexY = vertex_pos.y + dv.x;
   // fragColors = vec3(colors);
-  vertexY = vertex_pos.y;
+  vertexY = vertex_pos.y / maxAmp * minAmp;
 
 //  if(areaX == 0)
 //	vertexY = 1.f;
@@ -29,6 +29,5 @@ void main ()
 //	vertexY = 0.0f;
 
 
-  gl_Position = MVP * vec4(vertex_pos.x, vertex_pos.y * 50.0f , vertex_pos.z, 1.0f);
-  //gl_Position = MVP * vec4(vertex_pos.x + areaX * 200.0f, vertex_pos.y * 50.0f , vertex_pos.z + areaY * 200.0f, 1.0f);
+  gl_Position = MVP * vec4(vertex_pos.x - 200, vertex_pos.y * 50.0f , vertex_pos.z- 200, 1.0f);
 }
