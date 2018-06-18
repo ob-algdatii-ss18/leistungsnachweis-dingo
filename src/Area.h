@@ -11,6 +11,14 @@
 
 #define AREA_SIZE 64
 
+/**
+ * An Area holds certain terrain values like permutation, amplitude, frequency and octaves which are randomly generated.
+ * Chunks reference areas to render their values using the before mentioned parameters.
+ *
+ * \author VM Ware
+ * \date 19.06.2018
+ */
+
 struct Area
 {
     u32 x, y;

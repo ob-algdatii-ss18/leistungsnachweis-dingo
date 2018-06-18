@@ -10,6 +10,8 @@
 #include "Area.h"
 #include "TypeDef.h"
 
+
+/** Values that represent different chunk types depending on how they are positioned to Areas. */
 enum ChunkType : u8
 {
     Inner = 0,
@@ -24,6 +26,14 @@ enum ChunkType : u8
     Length
 };
 
+/**
+ * A chunk holds the values that will be rendered into our 3D model.
+ * Chunks live within Areas and use their randomly generated parameters to calculate the perlin noise values.
+ *
+ * \author VM Ware
+ * \date 19.06.2018
+ */
+
 struct Chunk
 {
     Chunk(u8 x, u8 y, std::vector<Area*> areas, ChunkType type, Area* def);
@@ -33,16 +43,10 @@ struct Chunk
     void calculate();
     void renderToPGM(std::string const& filename);
 
-    // Beim Rendern als offset benutzen um die absoluten Koordinaten der Werte zu erhalten.
     u32 x;
     u32 y;
 
     Area* area;
-
-    // 1 inner			1 Area
-    // 2 vertical		2 Areas (Oben, Unten)
-    // 3 horizontal		2 Areas (Rechts, Links)
-    // 4 corner			4 Areas (Oben Links, Oben Rechts, Unten Links, Unten Rechts)
     ChunkType type;
 
    private:
