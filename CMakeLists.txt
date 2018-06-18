@@ -67,7 +67,8 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 		set(THIRD_PARTY_INCLUDES 	ThirdParty
 									${GLM_INCLUDES}
 									${GLEW_INCLUDES}									
-									${SDL2_INCLUDE_DIRS})		
+									${SDL2_INCLUDE_DIRS}
+									ThirdParty/imgui-1.53)		
 		
 		set(THIRD_PARTY_LIBS 		${GLEW_LIBRARIES}
 									${SDL2_LIBRARIES})
