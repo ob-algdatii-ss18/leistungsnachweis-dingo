@@ -6,9 +6,9 @@ Perlin Noise ist ein Algrorithmus der zur Erzeugung von zufällig, jedoch realis
 
 ### Screenshots
 #### Bild 1
-![example 1](https://github.com/ob-algdatii-ss18/leistungsnachweis-dingo/blob/master/example/example1.PNG)
+![example 1](example/example1.PNG)
 #### Bild 2
-![example 2](https://github.com/ob-algdatii-ss18/leistungsnachweis-dingo/blob/master/example/example2.PNG)
+![example 2](example/example2.PNG)
 
 ### Doxygen
 
