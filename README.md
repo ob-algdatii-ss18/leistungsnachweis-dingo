@@ -2,10 +2,13 @@
 [![Build Status](https://travis-ci.org/ob-algdatii-ss18/leistungsnachweis-dingo.svg?branch=master)](https://travis-ci.org/ob-algdatii-ss18/leistungsnachweis-dingo)
 
 ### Definition
-Perlin Noise ist ein Algrorithmus der zur Erzeugung von zufällig, jedoch realistisch aussehendem Terrrain verwendet wird. Er basiert auf dem normalen Noise-Algorithmus und wurde 1982 von Ken Perlin entwickelt.
+Perlin Noise ist ein Algrorithmus der zur Erzeugung von zufällig, jedoch realistisch aussehendem Terrrain verwendet wird. Er basiert auf dem normalen Noise-Algorithmus und wurde 1982 von Ken Perlin entwickelt. Perlin Noise ist nicht nur performanter, als der normale Noise-Algorithmus, sondern schafft es auch noch realistisch wirkendere Terrains zu generieren. Ken Perlin wurde für die Entwicklung 1997 ein Oscar verliehen.
 
-### Beispiele
-
+### Screenshots
+#### Bild 1
+![example 1](https://github.com/ob-algdatii-ss18/leistungsnachweis-dingo/blob/master/example/example1.PNG)
+#### Bild 2
+![example 2](https://github.com/ob-algdatii-ss18/leistungsnachweis-dingo/blob/master/example/example2.PNG)
 
 ### Doxygen
 
